@@ -1,0 +1,2724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Semester Forecast &middot; AppADay 092</title>
+<meta name="description" content="Feed in every syllabus for the term and see the whole semester as one forecast: which weeks are calm, which weeks are a crunch, and what your grade needs from each one.">
+<meta name="theme-color" content="#eef1f6">
+<meta property="og:title" content="Semester Forecast - AppADay 092">
+<meta property="og:description" content="Every syllabus, one calendar. See the crunch weeks before they arrive.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#eef1f6;
+  --card:#ffffff;
+  --card2:#f7f9fc;
+  --ink:#131a2b;
+  --ink2:#45506a;
+  --ink3:#7d8799;
+  --rule:#dde3ec;
+  --rule2:#c3cbd9;
+  --accent:#2c5c8f;
+  --accent-soft:#dde9f5;
+  --clear:#dfe5ee;
+  --calm:#3d8d84;
+  --steady:#6f9a3e;
+  --busy:#cf8b1f;
+  --crunch:#b3402d;
+  --calm-soft:#dceceb;
+  --steady-soft:#e5eed8;
+  --busy-soft:#f8e9cf;
+  --crunch-soft:#f6dcd7;
+  --sans:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --disp:"Fraunces","Archivo",Georgia,serif;
+  --mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,monospace;
+  --shadow:0 1px 2px rgba(19,26,43,.05),0 8px 22px rgba(19,26,43,.07);
+  --r:13px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;min-height:100dvh;display:flex;flex-direction:column;
+  background:var(--paper);color:var(--ink);
+  font-family:var(--sans);font-size:15px;line-height:1.5;
+  background-image:
+    radial-gradient(circle at 10% 4%,rgba(44,92,143,.07),transparent 44%),
+    radial-gradient(circle at 92% 2%,rgba(179,64,45,.06),transparent 40%);
+}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:none;padding:0}
+a{color:var(--accent)}
+.hidden{display:none !important}
+.muted{color:var(--ink3)}
+
+/* ---------- header ---------- */
+header{
+  border-bottom:1px solid var(--rule);
+  background:rgba(255,255,255,.82);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  padding:14px 16px calc(14px + env(safe-area-inset-bottom,0px));
+}
+.hwrap{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.mark{
+  width:38px;height:38px;border-radius:10px;flex:0 0 auto;
+  background:linear-gradient(160deg,var(--calm),var(--busy) 62%,var(--crunch));
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;font-family:var(--mono);font-weight:600;font-size:12px;letter-spacing:.5px;
+  box-shadow:var(--shadow);
+}
+.htext{flex:1 1 200px;min-width:0}
+h1{
+  margin:0;font-family:var(--disp);font-weight:700;
+  font-size:clamp(21px,5.4vw,27px);line-height:1.12;letter-spacing:-.01em;
+}
+.sub{margin:2px 0 0;font-size:12.5px;color:var(--ink3)}
+.sub a{color:var(--ink3);text-decoration:underline;text-underline-offset:2px}
+.icon-btn{
+  width:40px;height:40px;border-radius:11px;border:1px solid var(--rule2);
+  background:var(--card);display:flex;align-items:center;justify-content:center;
+  font-size:17px;position:relative;flex:0 0 auto;
+}
+.icon-btn:hover{border-color:var(--accent)}
+.icon-btn.dot::after{
+  content:"";position:absolute;top:6px;right:6px;width:8px;height:8px;
+  border-radius:50%;background:var(--crunch);
+}
+
+/* ---------- layout ---------- */
+main{flex:1 1 auto;width:100%;max-width:1080px;margin:0 auto;padding:18px 16px 48px}
+section{margin:0 0 18px}
+.card{
+  background:var(--card);border:1px solid var(--rule);border-radius:var(--r);
+  box-shadow:var(--shadow);
+}
+.card-pad{padding:16px}
+h2{margin:0;font-family:var(--disp);font-weight:600;font-size:18px;letter-spacing:-.01em}
+h3{margin:0;font-size:14px;font-weight:700;letter-spacing:.01em}
+.eyebrow{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ink3);margin:0 0 6px;
+}
+
+/* ---------- intake ---------- */
+.drop{
+  border:1.5px dashed var(--rule2);border-radius:var(--r);background:var(--card2);
+  padding:20px 16px;text-align:center;transition:border-color .15s,background .15s;
+}
+.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop .big{font-size:26px;line-height:1}
+.drop p{margin:8px 0 12px;font-size:13.5px;color:var(--ink2)}
+.chip-file{
+  display:inline-flex;align-items:center;gap:8px;margin-top:10px;
+  background:var(--accent-soft);border:1px solid var(--rule2);border-radius:999px;
+  padding:5px 6px 5px 12px;font-size:12.5px;max-width:100%;
+}
+.chip-file span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chip-x{width:22px;height:22px;border-radius:50%;background:var(--card);border:1px solid var(--rule2);font-size:12px;line-height:1;flex:0 0 auto}
+.or-rule{
+  display:flex;align-items:center;gap:10px;margin:14px 0 10px;
+  font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);
+  font-family:var(--mono);
+}
+.or-rule::before,.or-rule::after{content:"";flex:1;height:1px;background:var(--rule)}
+textarea{
+  width:100%;min-height:120px;resize:vertical;padding:12px 13px;
+  border:1px solid var(--rule2);border-radius:11px;background:var(--card2);
+  font-size:14px;line-height:1.5;
+}
+textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
+.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.btn{
+  border:1px solid var(--rule2);background:var(--card);border-radius:10px;
+  padding:9px 14px;font-size:13.5px;font-weight:600;
+}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn:disabled{opacity:.55;cursor:default}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn-primary:hover{background:#24507d;color:#fff}
+.btn-sm{padding:6px 10px;font-size:12.5px;border-radius:9px}
+.counter{font-family:var(--mono);font-size:11.5px;color:var(--ink3);margin-left:auto}
+
+/* ---------- notice ---------- */
+.notice{
+  margin-top:12px;border:1px solid var(--crunch);background:var(--crunch-soft);
+  border-radius:11px;padding:11px 12px;font-size:13.5px;
+  display:flex;gap:10px;align-items:flex-start;
+}
+.notice.info{border-color:var(--accent);background:var(--accent-soft)}
+.notice strong{display:block;margin-bottom:2px}
+.n-msg{flex:1 1 auto}
+.n-x{font-size:12px;font-weight:600;text-decoration:underline;flex:0 0 auto}
+
+/* ---------- course rail ---------- */
+.rail{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.crs{
+  display:inline-flex;align-items:center;gap:8px;
+  border:1px solid var(--rule2);background:var(--card);border-radius:999px;
+  padding:6px 6px 6px 11px;font-size:13px;max-width:100%;
+}
+.dotc{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.crs b{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.crs .wsum{font-family:var(--mono);font-size:11px;color:var(--ink3)}
+.crs .wsum.bad{color:var(--crunch);font-weight:600}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;-webkit-overflow-scrolling:touch}
+.tab{
+  border:1px solid var(--rule2);background:var(--card);border-radius:999px;
+  padding:8px 15px;font-size:13.5px;font-weight:600;white-space:nowrap;flex:0 0 auto;
+}
+.tab[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ---------- forecast ---------- */
+.strip-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 2px}
+.strip{display:flex;gap:5px;align-items:flex-end;min-width:min-content}
+.wk{
+  flex:0 0 auto;width:40px;display:flex;flex-direction:column;align-items:center;gap:6px;
+  background:none;
+}
+.wk-bar{
+  width:100%;height:168px;display:flex;flex-direction:column;justify-content:flex-end;
+  border-radius:7px 7px 3px 3px;overflow:hidden;background:var(--card2);
+  border:1px solid var(--rule);
+}
+.wk[aria-pressed="true"] .wk-bar{outline:2px solid var(--ink);outline-offset:1px}
+.seg{width:100%;min-height:2px}
+.wk-lab{font-family:var(--mono);font-size:9.5px;color:var(--ink3);text-align:center;line-height:1.25}
+.wk-lab b{display:block;font-size:11px;color:var(--ink2);font-weight:600}
+.wk-heat{width:100%;height:4px;border-radius:2px;background:var(--clear)}
+
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:14px;font-size:12px;color:var(--ink2)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw{width:11px;height:11px;border-radius:3px;flex:0 0 auto}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(132px,1fr));gap:10px;margin-top:16px}
+.stat{background:var(--card2);border:1px solid var(--rule);border-radius:11px;padding:11px 12px}
+.stat .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.stat .v{font-family:var(--disp);font-size:22px;font-weight:700;line-height:1.15;margin-top:3px}
+.stat .n{font-size:11.5px;color:var(--ink3);margin-top:2px}
+
+.callouts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px;margin-top:16px}
+.callout{border:1px solid var(--rule);border-radius:11px;padding:13px 14px;background:var(--card2)}
+.callout.hot{border-color:var(--crunch);background:var(--crunch-soft)}
+.callout.cool{border-color:var(--calm);background:var(--calm-soft)}
+.callout h3{margin-bottom:5px}
+.callout p{margin:0;font-size:13px;color:var(--ink2)}
+.callout ul{margin:7px 0 0;padding-left:17px;font-size:13px;color:var(--ink2)}
+.callout li{margin-bottom:3px}
+
+.wkdetail{margin-top:16px;border-top:1px solid var(--rule);padding-top:14px}
+
+/* ---------- item rows ---------- */
+.row{
+  display:flex;gap:11px;align-items:flex-start;padding:10px 0;
+  border-bottom:1px solid var(--rule);
+}
+.row:last-child{border-bottom:none}
+.row .when{
+  flex:0 0 58px;font-family:var(--mono);font-size:11px;color:var(--ink2);
+  text-align:center;line-height:1.3;padding-top:2px;
+}
+.row .when b{display:block;font-size:15px;color:var(--ink);font-weight:600}
+.row .body{flex:1 1 auto;min-width:0}
+.row .body .t{font-weight:600;font-size:14px}
+.row .body .m{font-size:12px;color:var(--ink3);margin-top:2px;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center}
+.tag{
+  display:inline-block;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;padding:2px 6px;border-radius:5px;
+  background:var(--accent-soft);color:var(--accent);border:1px solid var(--rule2);
+}
+.tag.exam{background:var(--crunch-soft);color:var(--crunch);border-color:var(--crunch)}
+.tag.project{background:var(--busy-soft);color:#8f6111;border-color:var(--busy)}
+.tag.quiz,.tag.discussion{background:var(--steady-soft);color:#4a6a24;border-color:var(--steady)}
+.tag.holiday{background:var(--calm-soft);color:var(--calm);border-color:var(--calm)}
+.diff{display:inline-flex;gap:2px;align-items:center}
+.diff i{width:5px;height:5px;border-radius:50%;background:var(--rule2);display:block}
+.diff i.on{background:var(--ink2)}
+.filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
+.fbtn{border:1px solid var(--rule2);background:var(--card);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
+.fbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
+
+/* ---------- grades ---------- */
+.gcard{margin-bottom:14px}
+.gcard .head{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.wbar{display:flex;height:16px;border-radius:8px;overflow:hidden;border:1px solid var(--rule2);background:var(--card2)}
+.wbar div{min-width:2px}
+.wlist{margin-top:12px}
+.wrow{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--rule)}
+.wrow:last-child{border-bottom:none}
+.wrow .nm{flex:1 1 148px;min-width:0;font-size:13.5px;display:flex;align-items:center;gap:8px}
+.wrow .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wrow .wt{font-family:var(--mono);font-size:12px;color:var(--ink3);flex:0 0 46px;text-align:right}
+.wrow .conv{
+  font-family:var(--mono);font-size:12px;color:var(--ink3);flex:0 0 52px;text-align:right;
+}
+.wrow .conv.bad{color:var(--crunch);font-weight:600}
+.wrow .conv.calc{color:var(--accent);font-weight:600}
+.wrow input.bad{border-color:var(--crunch);background:var(--crunch-soft)}
+.wrow input.superseded{color:var(--ink3);text-decoration:line-through;opacity:.7}
+.wrow input:disabled{background:var(--card);cursor:not-allowed}
+.scorehint{font-size:12px;color:var(--ink3);margin:10px 0 0}
+.scorehint code{
+  font-family:var(--mono);font-size:11.5px;background:var(--card2);
+  border:1px solid var(--rule);border-radius:5px;padding:1px 5px;
+}
+.wrow.ec .nm{color:#8f6111}
+.wt.ec{color:var(--busy);font-weight:600}
+.tag.ec{background:var(--busy-soft);color:#8f6111;border-color:var(--busy)}
+.expand{
+  flex:0 0 auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;
+  border:1px solid var(--rule2);background:var(--card2);border-radius:999px;
+  padding:4px 9px;color:var(--ink2);white-space:nowrap;
+}
+.expand:hover{border-color:var(--accent);color:var(--accent)}
+.expand.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.expand.filled{border-color:var(--accent);color:var(--accent);font-weight:600}
+.expand.on.filled{color:#fff}
+.subs{
+  flex:1 1 100%;background:var(--card2);border:1px solid var(--rule);border-radius:11px;
+  padding:12px;margin:2px 0 10px;
+}
+.subsum{font-size:12px;color:var(--ink2);margin-bottom:10px;line-height:1.45}
+.subgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.subcell{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:4px 6px}
+.sublab{font-family:var(--mono);font-size:10.5px;color:var(--ink3);flex:0 0 16px;text-align:right}
+.subcell input{
+  flex:1 1 auto;width:100%;min-width:0;border:none;background:none;padding:3px 2px;
+  font-family:var(--mono);font-size:12.5px;text-align:right;
+}
+.subcell input:focus{outline:2px solid var(--accent);outline-offset:1px;border-radius:5px}
+.subs .btn{margin-top:10px}
+.substatic{font-size:11.5px;color:var(--ink3);padding:0 0 8px 0;line-height:1.45}
+.rail3 .x{background:var(--busy)}
+.verdict.ecline{color:#8f6111;font-size:13px;margin-top:6px}
+.wrow input{
+  flex:0 0 76px;width:76px;padding:6px 8px;border:1px solid var(--rule2);border-radius:8px;
+  background:var(--card2);font-family:var(--mono);font-size:13px;text-align:right;
+}
+.runway{margin-top:14px;background:var(--card2);border:1px solid var(--rule);border-radius:11px;padding:13px 14px}
+.rail3{display:flex;height:22px;border-radius:8px;overflow:hidden;border:1px solid var(--rule2);margin:10px 0 8px}
+.rail3 .e{background:var(--steady)}
+.rail3 .l{background:var(--crunch)}
+.rail3 .o{background:var(--clear)}
+.rlegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--ink2)}
+.verdict{font-size:13.5px;margin-top:9px;line-height:1.5}
+.verdict b{font-family:var(--mono)}
+.big-grade{font-family:var(--disp);font-size:30px;font-weight:700;line-height:1}
+
+/* ---------- policies ---------- */
+.pol{border-bottom:1px solid var(--rule);padding:11px 0}
+.pol:last-child{border-bottom:none}
+.pol .k{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3)}
+.pol .v{font-size:13.5px;color:var(--ink2);margin-top:3px}
+.watch{margin:10px 0 0;padding-left:18px;font-size:13.5px;color:var(--ink2)}
+.watch li{margin-bottom:5px}
+
+/* ---------- empty / loading ---------- */
+.empty{text-align:center;padding:34px 18px;color:var(--ink3)}
+.empty .big{font-size:34px;line-height:1;margin-bottom:10px}
+.empty p{margin:0 auto;max-width:460px;font-size:13.5px}
+.skel{height:12px;border-radius:6px;background:linear-gradient(90deg,var(--rule) 25%,var(--card2) 37%,var(--rule) 63%);background-size:400% 100%;animation:sh 1.3s linear infinite;margin:9px 0}
+@keyframes sh{0%{background-position:100% 0}100%{background-position:0 0}}
+.rawbox{
+  margin-top:10px;background:#151b28;color:#cfd6e4;border-radius:9px;padding:11px;
+  font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;word-break:break-word;
+  max-height:220px;overflow:auto;
+}
+
+/* ---------- modal ---------- */
+.overlay{
+  position:fixed;inset:0;background:rgba(19,26,43,.5);z-index:50;
+  display:flex;align-items:center;justify-content:center;padding:18px;
+}
+.modal{
+  background:var(--card);border-radius:15px;padding:20px;max-width:430px;width:100%;
+  box-shadow:0 24px 60px rgba(19,26,43,.3);max-height:88vh;overflow:auto;
+}
+.modal h2{margin-bottom:6px}
+.modal p{font-size:13px;color:var(--ink3);margin:0 0 14px}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:12.5px;font-weight:600;margin-bottom:5px}
+.field input{width:100%;padding:9px 11px;border:1px solid var(--rule2);border-radius:9px;background:var(--card2);font-size:14px}
+.hint{font-size:11.5px;color:var(--ink3);margin-top:5px}
+.modal-actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-top:6px}
+
+footer{
+  border-top:1px solid var(--rule);padding:18px 16px calc(20px + env(safe-area-inset-bottom,0px));
+  text-align:center;font-size:12.5px;color:var(--ink3);
+}
+footer a{color:var(--ink2)}
+
+.tools{display:flex;flex-wrap:wrap;gap:8px}
+
+/* ---------- print report ---------- */
+#report{display:none}
+.rep-head{border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+.rep-title{font-family:var(--disp);font-size:26px;font-weight:700;line-height:1.1}
+.rep-meta{font-size:12px;color:var(--ink2);margin-top:4px}
+.rep-sec{margin-bottom:18px}
+.rep-sec > h2{margin-bottom:10px}
+.rep-foot{border-top:1px solid var(--rule);margin-top:18px;padding-top:10px;font-size:11px;color:var(--ink3)}
+.scorestatic{font-family:var(--mono);font-size:13px;flex:0 0 76px;text-align:right}
+
+@media (max-width:520px){
+  .card-pad{padding:14px}
+  .row .when{flex:0 0 50px}
+  .wk{width:34px}
+  .wk-bar{height:142px}
+}
+
+@media print{
+  @page{margin:0.5in}
+  *{
+    -webkit-print-color-adjust:exact !important;
+    print-color-adjust:exact !important;
+  }
+  html,body{background:#fff !important;background-image:none !important;font-size:11.5px}
+  header,#intake,#railsec,#toolsec,#tabsec,#panel,footer,.overlay,.notice{display:none !important}
+  main{padding:0;max-width:none}
+  #report{display:block !important}
+  .btn,.fbtn,.filters,.chip-x,.icon-btn{display:none !important}
+  .card{box-shadow:none !important;border:1px solid var(--rule2);break-inside:avoid;page-break-inside:avoid}
+  .rep-sec + .rep-sec{break-before:page;page-break-before:always}
+  .rep-sec > .card{margin-bottom:10px}
+  .strip-wrap{overflow:visible !important}
+  .strip{gap:4px}
+  .wk{width:36px}
+  .wk-bar{height:104px}
+  .row{break-inside:avoid;page-break-inside:avoid;padding:6px 0}
+  .gcard,.callout,.stat,.runway,.wkdetail{break-inside:avoid;page-break-inside:avoid}
+  .stats{gap:8px}
+  a{color:var(--ink) !important;text-decoration:none}
+  h2{font-size:16px}
+  .big-grade{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hwrap">
+    <div class="mark">092</div>
+    <div class="htext">
+      <h1>Semester Forecast</h1>
+      <p class="sub">Day 092 of <a href="https://augustineiacopelli.github.io/appaday/">AppADay</a> &middot; every syllabus, one calendar</p>
+    </div>
+    <button class="icon-btn" id="gear" type="button" title="Settings" aria-label="Settings">&#9881;</button>
+  </div>
+</header>
+
+<main>
+
+  <section class="card card-pad" id="intake">
+    <p class="eyebrow">Add a course</p>
+    <div class="drop" id="drop">
+      <div class="big">&#128194;</div>
+      <p>Drop a syllabus PDF here, or tap to pick one. Photos of a printed schedule work too.</p>
+      <button class="btn" id="pick" type="button">Choose a file</button>
+      <input type="file" id="fileinput" class="hidden" accept=".pdf,.txt,.md,.csv,.rtf,application/pdf,text/plain,image/*">
+      <div id="chipslot"></div>
+    </div>
+
+    <div class="or-rule">or paste the text</div>
+    <textarea id="text" placeholder="Paste the full syllabus here, schedule and all, then press Read syllabus. Page numbers and broken line breaks are fine."></textarea>
+
+    <div class="actions">
+      <button class="btn btn-primary" id="run" type="button">Read syllabus</button>
+      <button class="btn" id="sample" type="button">Load sample term</button>
+      <button class="btn" id="clearin" type="button">Clear</button>
+      <span class="counter" id="counter">0 characters</span>
+    </div>
+    <div class="notice hidden" id="notice"></div>
+  </section>
+
+  <section id="railsec" class="hidden">
+    <p class="eyebrow">Courses in this forecast</p>
+    <div class="rail" id="rail"></div>
+  </section>
+
+  <section id="toolsec" class="hidden">
+    <div class="tools">
+      <button class="btn btn-sm" id="printbtn" type="button">Print or save as PDF</button>
+      <button class="btn btn-sm" id="copybtn" type="button">Copy as plain text</button>
+    </div>
+  </section>
+
+  <section id="tabsec" class="hidden">
+    <div class="tabs" role="tablist">
+      <button class="tab" id="tab-forecast" role="tab" aria-selected="true" type="button">Forecast</button>
+      <button class="tab" id="tab-work" role="tab" aria-selected="false" type="button">Deliverables</button>
+      <button class="tab" id="tab-grades" role="tab" aria-selected="false" type="button">Grades</button>
+      <button class="tab" id="tab-policies" role="tab" aria-selected="false" type="button">Policies</button>
+    </div>
+  </section>
+
+  <section id="panel" aria-live="polite">
+    <div class="card card-pad empty" id="firstrun">
+      <div class="big">&#127756;</div>
+      <p>Add one syllabus and you get its dates, weights, and policies. Add the rest of your courses and they stack into a single semester forecast that shows which weeks are calm and which weeks are going to hurt.</p>
+    </div>
+  </section>
+
+  <div id="report"></div>
+
+</main>
+
+<footer>
+  Day 092 of <a href="https://augustineiacopelli.github.io/appaday/">AppADay</a> by Augustine Iacopelli.
+  <br>Syllabus text goes straight from your browser to the Anthropic API. Nothing is stored on a server.
+</footer>
+
+<div class="overlay hidden" id="overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mtitle">
+    <h2 id="mtitle">Settings</h2>
+    <p>Stored in this browser only. Never committed, never sent anywhere but api.anthropic.com.</p>
+    <div class="field">
+      <label for="key">Anthropic API key</label>
+      <input id="key" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false">
+      <div class="hint">Get one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener">console.anthropic.com</a>.</div>
+    </div>
+    <div class="field">
+      <label for="session">Term label</label>
+      <input id="session" type="text" placeholder="Fall 2026" autocomplete="off">
+      <div class="hint">Optional. Printed on the copied summary.</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" id="test" type="button">Test connection</button>
+      <button class="btn" id="cancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="save" type="button">Save</button>
+    </div>
+    <div id="testresult"></div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="confirm">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ctitle">
+    <h2 id="ctitle">Remove this course?</h2>
+    <p id="cbody">This takes it out of the forecast. The syllabus itself is untouched.</p>
+    <div class="modal-actions">
+      <button class="btn" id="cno" type="button">Keep it</button>
+      <button class="btn btn-primary" id="cyes" type="button">Remove</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var CLAUDE_MODEL = "claude-sonnet-5";
+  var API_URL = "https://api.anthropic.com/v1/messages";
+  var K_KEY = "appaday092-key";
+  var K_SESSION = "appaday092-session";
+  var K_COURSES = "appaday092-courses";
+  var K_SCORES = "appaday092-scores";
+  var MAX_CHARS = 60000;
+  var MAX_FILE_BYTES = 25 * 1024 * 1024;
+
+  var COURSE_COLORS = ["#2c5c8f", "#b3402d", "#3d8d84", "#8a5aa8", "#cf8b1f", "#4a6a24", "#a03d6d", "#3f5f7a"];
+
+  var BANDS = [
+    { key: "clear",  label: "Clear",  color: "var(--clear)",  min: 0 },
+    { key: "calm",   label: "Calm",   color: "var(--calm)",   min: 0.001 },
+    { key: "steady", label: "Steady", color: "var(--steady)", min: 0.25 },
+    { key: "busy",   label: "Busy",   color: "var(--busy)",   min: 0.50 },
+    { key: "crunch", label: "Crunch", color: "var(--crunch)", min: 0.75 }
+  ];
+
+  /* ---------------- storage ---------------- */
+  var mem = {};
+  var storageOK = (function () {
+    try { localStorage.setItem("__a92__", "1"); localStorage.removeItem("__a92__"); return true; }
+    catch (e) { return false; }
+  })();
+  function load(k, fb) {
+    if (!storageOK) { return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : fb; }
+    try { var v = localStorage.getItem(k); return v === null ? fb : v; }
+    catch (e) { return Object.prototype.hasOwnProperty.call(mem, k) ? mem[k] : fb; }
+  }
+  function save(k, v) {
+    mem[k] = v;
+    if (!storageOK) { return; }
+    try { localStorage.setItem(k, v); } catch (e) { storageOK = false; }
+  }
+
+  /* ---------------- dom helpers ---------------- */
+  var $ = function (id) { return document.getElementById(id); };
+  function clear(node) { while (node && node.firstChild) { node.removeChild(node.firstChild); } }
+  function esc(s) {
+    return String(s === undefined || s === null ? "" : s)
+      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+  }
+  function has(v) {
+    if (v === undefined || v === null) { return false; }
+    var s = String(v).trim();
+    if (!s) { return false; }
+    return !/^(n\/a|na|none|not stated|not specified|unknown|not listed|not mentioned)\.?$/i.test(s);
+  }
+  function r1(n) { return Math.round(n * 10) / 10; }
+
+  /* A score can be entered the way it actually comes back: a plain percent (88, 88%) or the raw
+     points off the rubric (22/25, "22 of 25", 17.5 / 20). Returns a percent, or null if the
+     entry is not yet readable, which leaves that line uncounted rather than guessing at it. */
+  function parseScore(raw) {
+    if (raw === undefined || raw === null) { return null; }
+    var s = String(raw).trim();
+    if (!s) { return null; }
+    s = s.replace(/%/g, "");
+    s = s.replace(/\s+out\s+of\s+/ig, "/").replace(/\s+of\s+/ig, "/");
+    s = s.replace(/\s+/g, "");
+    if (!s) { return null; }
+
+    var m = /^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/.exec(s);
+    if (m) {
+      var num = parseFloat(m[1]), den = parseFloat(m[2]);
+      if (!isFinite(num) || !isFinite(den) || den <= 0) { return null; }
+      return (num / den) * 100;
+    }
+    if (!/^\d+(?:\.\d+)?$/.test(s)) { return null; }
+    var v = parseFloat(s);
+    return isFinite(v) ? v : null;
+  }
+  function isFraction(raw) { return /\/|\bof\b/i.test(String(raw === undefined || raw === null ? "" : raw)); }
+
+  /* ---------------- state ---------------- */
+  var courses = [];
+  var scores = {};
+  var tab = "forecast";
+  var pickedWeek = null;
+  var typeFilter = "all";
+  var pendingDelete = null;
+  var reportMode = false;
+
+  try { courses = JSON.parse(load(K_COURSES, "[]")) || []; } catch (e) { courses = []; }
+  if (!(courses instanceof Array)) { courses = []; }
+  try { scores = JSON.parse(load(K_SCORES, "{}")) || {}; } catch (e) { scores = {}; }
+  if (typeof scores !== "object" || scores === null) { scores = {}; }
+
+  /* A stored course can be malformed: clipped by a full quota, hand edited, or written by an
+     older shape of this app. Guarantee every field before anything tries to read it, so a bad
+     record degrades into a thin course rather than blanking the whole page. */
+  function rehydrate(c) {
+    if (!c || typeof c !== "object") { c = {}; }
+    var out = {
+      id: (typeof c.id === "string" && c.id) ? c.id : ("c" + Math.random().toString(36).slice(2, 10)),
+      name: (typeof c.name === "string" && c.name.trim()) ? c.name.trim().slice(0, 62) : "Untitled course",
+      term: typeof c.term === "string" ? c.term : "",
+      credits: typeof c.credits === "string" ? c.credits : "",
+      startIso: typeof c.startIso === "string" ? c.startIso : "",
+      endIso: typeof c.endIso === "string" ? c.endIso : "",
+      instructor: { name: "", email: "", officeHours: "" },
+      target: 90,
+      scheme: [],
+      items: [],
+      policies: { attendance: "", ai: "", lateWork: "", integrity: "", communication: "" },
+      watch: [],
+      loadNote: typeof c.loadNote === "string" ? c.loadNote : ""
+    };
+    var tg = parseFloat(c.target);
+    if (isFinite(tg) && tg >= 50 && tg <= 100) { out.target = tg; }
+
+    var ins = (c.instructor && typeof c.instructor === "object") ? c.instructor : {};
+    out.instructor.name = typeof ins.name === "string" ? ins.name : "";
+    out.instructor.email = typeof ins.email === "string" ? ins.email : "";
+    out.instructor.officeHours = typeof ins.officeHours === "string" ? ins.officeHours : "";
+
+    var pol = (c.policies && typeof c.policies === "object") ? c.policies : {};
+    var pk;
+    for (pk in out.policies) {
+      if (Object.prototype.hasOwnProperty.call(out.policies, pk)) {
+        out.policies[pk] = typeof pol[pk] === "string" ? pol[pk] : "";
+      }
+    }
+
+    var i;
+    if (c.scheme instanceof Array) {
+      for (i = 0; i < c.scheme.length; i++) {
+        var s = c.scheme[i];
+        if (!s || typeof s !== "object") { continue; }
+        var sw = parseFloat(s.weight);
+        var sn = String(s.item === undefined || s.item === null ? "" : s.item).trim();
+        var scn = parseInt(s.count, 10);
+        if (!isFinite(scn) || scn < 1) { scn = 1; }
+        if (scn > 60) { scn = 60; }
+        var sdr = parseInt(s.drop, 10);
+        if (!isFinite(sdr) || sdr < 0) { sdr = 0; }
+        if (sdr > scn - 1) { sdr = Math.max(0, scn - 1); }
+        if (sn && isFinite(sw) && sw >= 0) {
+          out.scheme.push({
+            item: sn.slice(0, 44), weight: r1(sw), count: scn, drop: sdr,
+            extraCredit: s.extraCredit === true,
+            note: typeof s.note === "string" ? s.note : ""
+          });
+        }
+      }
+    }
+    if (c.items instanceof Array) {
+      for (i = 0; i < c.items.length; i++) {
+        var it = c.items[i];
+        if (!it || typeof it !== "object") { continue; }
+        var lb = String(it.label === undefined || it.label === null ? "" : it.label).trim();
+        if (!lb) { continue; }
+        var ty = String(it.type || "other").toLowerCase();
+        if (!TYPES[ty]) { ty = "other"; }
+        var cd = String(it.cadence || "once").toLowerCase();
+        if (cd !== "weekly" && cd !== "biweekly") { cd = "once"; }
+        var hh = parseFloat(it.hours);
+        if (!isFinite(hh) || hh < 0) { hh = 0; }
+        if (hh > 60) { hh = 60; }
+        var ww = parseFloat(it.weight);
+        if (!isFinite(ww) || ww < 0) { ww = 0; }
+        var dd = parseInt(it.difficulty, 10);
+        if (!isFinite(dd) || dd < 1) { dd = 2; }
+        if (dd > 5) { dd = 5; }
+        out.items.push({
+          label: lb.slice(0, 90), type: ty, cadence: cd,
+          iso: typeof it.iso === "string" ? it.iso : "",
+          startIso: typeof it.startIso === "string" ? it.startIso : "",
+          endIso: typeof it.endIso === "string" ? it.endIso : "",
+          display: typeof it.display === "string" ? it.display : "",
+          weight: r1(ww), hours: r1(hh), difficulty: dd,
+          note: typeof it.note === "string" ? it.note : ""
+        });
+      }
+    }
+    if (c.watch instanceof Array) {
+      for (i = 0; i < c.watch.length && out.watch.length < 5; i++) {
+        var wv = String(c.watch[i] === undefined || c.watch[i] === null ? "" : c.watch[i]).trim();
+        if (wv) { out.watch.push(wv.slice(0, 220)); }
+      }
+    }
+    return out;
+  }
+
+  function persist() {
+    try { save(K_COURSES, JSON.stringify(courses)); } catch (e) { /* too large */ }
+    try { save(K_SCORES, JSON.stringify(scores)); } catch (e) { /* too large */ }
+  }
+
+  /* ---------------- dates ---------------- */
+  var MON = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  function parseIso(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s || "").trim());
+    if (!m) { return null; }
+    var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    if (isNaN(d.getTime())) { return null; }
+    return d;
+  }
+  function isoOf(d) {
+    var mm = d.getUTCMonth() + 1, dd = d.getUTCDate();
+    return d.getUTCFullYear() + "-" + (mm < 10 ? "0" : "") + mm + "-" + (dd < 10 ? "0" : "") + dd;
+  }
+  function addDays(d, n) {
+    var c = new Date(d.getTime());
+    c.setUTCDate(c.getUTCDate() + n);
+    return c;
+  }
+  function mondayOf(iso) {
+    var d = parseIso(iso);
+    if (!d) { return null; }
+    var day = d.getUTCDay();
+    return isoOf(addDays(d, day === 0 ? -6 : 1 - day));
+  }
+  function shortDate(iso) {
+    var d = parseIso(iso);
+    if (!d) { return ""; }
+    return MON[d.getUTCMonth()] + " " + d.getUTCDate();
+  }
+  function dayAbbr(iso) {
+    var d = parseIso(iso);
+    if (!d) { return ""; }
+    return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getUTCDay()];
+  }
+  function todayIso() {
+    var n = new Date();
+    return isoOf(new Date(Date.UTC(n.getFullYear(), n.getMonth(), n.getDate())));
+  }
+
+  /* ---------------- the prompt ---------------- */
+  var SYSTEM_PROMPT =
+    "You are a precise academic document parser and a realistic estimator of student workload. " +
+    "You read a course syllabus and return its structure as JSON. You never invent facts that are not in the " +
+    "document, but you do estimate effort hours and difficulty, because those are judgments the document " +
+    "does not state. Respond with a single JSON object and nothing else: no preamble, no commentary, " +
+    "no markdown code fences.";
+
+  function schemaBlock() {
+    return '{\n' +
+      '  "course": {"title":"", "code":"", "term":"", "credits":"", "startIso":"", "endIso":""},\n' +
+      '  "instructor": {"name":"", "email":"", "officeHours":""},\n' +
+      '  "target": 90,\n' +
+      '  "scheme": [{"item":"Exams", "weight":30, "count":2, "drop":0, "extraCredit":false, "note":""}],\n' +
+      '  "items": [\n' +
+      '    {"label":"Midterm exam", "type":"exam", "cadence":"once", "iso":"2026-10-08",\n' +
+      '     "startIso":"", "endIso":"", "display":"Oct 8", "weight":20, "hours":6,\n' +
+      '     "difficulty":4, "note":""}\n' +
+      '  ],\n' +
+      '  "policies": {"attendance":"", "ai":"", "lateWork":"", "integrity":"", "communication":""},\n' +
+      '  "watch": [],\n' +
+      '  "loadNote": ""\n' +
+      '}\n\n' +
+      'Rules:\n' +
+      '1. "scheme" is the grading breakdown exactly as the syllabus presents it. "weight" is a plain number of\n' +
+      '   percent with no percent sign. If the syllabus uses raw points, convert each line to its percent of the\n' +
+      '   total points, round to one decimal, and put the raw points in "note".\n' +
+      '1a. "count" is how many separately graded pieces that one line covers: 10 for "Weekly labs (10 labs)", 14\n' +
+      '   for "Discussion posts, one per week", 3 for "Three case analyses". Use 1 when the line is a single\n' +
+      '   graded thing such as a final exam. If the syllabus implies a count without stating it, such as a\n' +
+      '   weekly item across a fourteen week term, infer it and say so in "note".\n' +
+      '1b. "drop" is how many of the lowest scores in that line are dropped, taken from language like "lowest\n' +
+      '   dropped", "two lowest quizzes dropped", or "your best 8 of 10 count". Use 0 when nothing is dropped.\n' +
+      '   For "best 8 of 10", count is 10 and drop is 2.\n' +
+      '1c. "extraCredit" is true only when the syllabus offers that line as a bonus on top of the final grade\n' +
+      '   rather than as part of it. The test is whether the graded lines still total 100 percent without it.\n' +
+      '   Optional work that substitutes for required work is NOT extra credit. When extra credit is stated as\n' +
+      '   a maximum boost such as "up to 3 percent added to your final grade", the weight is 3.\n' +
+      '2. "target" is the lowest percent that earns a straight A on the stated grading scale. If no scale is\n' +
+      '   given, use 90. The weights of all lines that are NOT extra credit should total 100.\n' +
+      '3. "items" is every dated thing a student has to do or show up for: exams, quizzes, papers, projects and\n' +
+      '   their milestones, presentations, labs, discussion posts, drop deadlines, and breaks or holidays.\n' +
+      '4. "type" must be exactly one of: exam, quiz, assignment, project, reading, discussion, deadline,\n' +
+      '   holiday, other.\n' +
+      '5. "cadence" must be exactly one of: once, weekly, biweekly. Use "once" for a single dated item and put\n' +
+      '   its date in "iso". Use "weekly" or "biweekly" for anything recurring, leave "iso" empty, and fill\n' +
+      '   "startIso" and "endIso" with the first and last date of the run.\n' +
+      '6. Dates are YYYY-MM-DD. If the syllabus gives a date with no year, infer it from the term. If a date\n' +
+      '   cannot be resolved at all, leave the date fields empty but still fill "display" with what the\n' +
+      '   syllabus says, such as "Week 4".\n' +
+      '7. "weight" on an item is its share of the final course grade as a number of percent, or 0 if it is not\n' +
+      '   separately graded. For a recurring item, "weight" is the total for the whole run, not per occurrence.\n' +
+      '8. "hours" is your estimate of the hours a typical student spends on ONE occurrence of that item,\n' +
+      '   including preparation and study, not just the sitting. A weekly discussion post might be 1. A term\n' +
+      '   paper might be 15. A final exam with studying might be 10. Always give a number greater than 0 for\n' +
+      '   anything graded, and 0 for holidays and breaks.\n' +
+      '9. "difficulty" is 1 to 5 for cognitive demand, where 1 is busywork and 5 is the hardest thing in the\n' +
+      '   course.\n' +
+      '10. Sort "items" chronologically. Set "course.startIso" and "course.endIso" to the first and last day of\n' +
+      '    the term if the syllabus states or implies them.\n' +
+      '11. "watch" is up to five one-sentence flags a student could easily miss: a single assignment worth an\n' +
+      '    outsized share, a no-late-work rule, required proctoring, an attendance rule that costs a letter\n' +
+      '    grade, a hard drop deadline.\n' +
+      '12. "loadNote" is one sentence on the shape of this course\'s workload across the term.\n' +
+      '13. If the document is not a syllabus at all, return {"error":"one short sentence on what you saw instead"}.\n';
+  }
+
+  function textPrompt(t) {
+    return "Extract the course syllabus below into JSON matching this exact shape:\n\n" +
+      schemaBlock() + "\nSYLLABUS:\n\"\"\"\n" + t + "\n\"\"\"";
+  }
+  function filePrompt(extra) {
+    return "The attached file is a course syllabus. Read all of it, including tables, the week by week " +
+      "schedule, and fine print on later pages, and extract it into JSON matching this exact shape:\n\n" +
+      schemaBlock() +
+      (extra ? "\nThe user added these notes alongside the file. Treat them as part of the source:\n\"\"\"\n" + extra + "\n\"\"\"" : "");
+  }
+
+  /* ---------------- notices ---------------- */
+  var notice = $("notice"), noticeTimer = null;
+  function showNotice(msg, kind, title) {
+    var isInfo = (kind === "info");
+    notice.className = "notice" + (isInfo ? " info" : "");
+    notice.innerHTML = '<span class="n-msg">' + (title ? "<strong>" + esc(title) + "</strong>" : "") +
+      esc(msg) + '</span><button class="n-x" type="button">Dismiss</button>';
+    notice.querySelector(".n-x").addEventListener("click", hideNotice);
+    if (noticeTimer) { clearTimeout(noticeTimer); noticeTimer = null; }
+    if (isInfo) { noticeTimer = setTimeout(hideNotice, 8000); }
+  }
+  function hideNotice() {
+    if (noticeTimer) { clearTimeout(noticeTimer); noticeTimer = null; }
+    notice.className = "notice hidden";
+    clear(notice);
+  }
+
+  /* ---------------- settings ---------------- */
+  var overlay = $("overlay"), gear = $("gear"), keyIn = $("key"), sessIn = $("session");
+  function hasKey() { return load(K_KEY, "").trim().length > 0; }
+  function markGear() { gear.className = hasKey() ? "icon-btn" : "icon-btn dot"; }
+  function openSettings() {
+    keyIn.value = load(K_KEY, "");
+    sessIn.value = load(K_SESSION, "");
+    clear($("testresult"));
+    overlay.classList.remove("hidden");
+    setTimeout(function () { keyIn.focus(); }, 40);
+  }
+  function closeSettings() { overlay.classList.add("hidden"); }
+  gear.addEventListener("click", openSettings);
+  $("cancel").addEventListener("click", closeSettings);
+  $("save").addEventListener("click", function () {
+    save(K_KEY, keyIn.value.trim());
+    save(K_SESSION, sessIn.value.trim());
+    markGear();
+    closeSettings();
+    showNotice("Settings saved.", "info");
+  });
+  overlay.addEventListener("click", function (e) { if (e.target === overlay) { closeSettings(); } });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Escape") { return; }
+    if (!overlay.classList.contains("hidden")) { closeSettings(); }
+    if (!$("confirm").classList.contains("hidden")) { closeConfirm(); }
+  });
+
+  var testBtn = $("test"), testOut = $("testresult");
+  testBtn.addEventListener("click", function () {
+    var key = keyIn.value.trim();
+    if (!key) { testOut.innerHTML = '<div class="notice">Paste a key first.</div>'; return; }
+    testBtn.disabled = true;
+    testBtn.textContent = "Testing";
+    testOut.innerHTML = '<div class="notice info">Sending a one word request to ' + esc(CLAUDE_MODEL) + ".</div>";
+    fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 16, messages: [{ role: "user", content: "Reply with the single word OK." }] })
+    }).then(function (res) {
+      return res.text().then(function (b) {
+        var d = null;
+        try { d = JSON.parse(b); } catch (e) { /* not json */ }
+        return { ok: res.ok, status: res.status, data: d, body: b };
+      });
+    }, function (e) { throw netError(e); }).then(function (r) {
+      if (!r.ok) { throw apiError(r); }
+      testOut.innerHTML = '<div class="notice info">Connected. ' + esc(CLAUDE_MODEL) + " answered normally.</div>";
+    })["catch"](function (err) {
+      testOut.innerHTML = '<div class="notice"><span class="n-msg"><strong>' +
+        esc(err.title || "Test failed") + "</strong>" + esc(err.message || String(err)) + "</span></div>";
+    }).then(function () {
+      testBtn.disabled = false;
+      testBtn.textContent = "Test connection";
+    });
+  });
+
+  /* ---------------- confirm modal ---------------- */
+  function openConfirm(idx) {
+    pendingDelete = idx;
+    $("cbody").textContent = "Removing " + (courses[idx] ? courses[idx].name : "this course") +
+      " takes it out of the forecast and clears the scores you entered for it. The syllabus itself is untouched.";
+    $("confirm").classList.remove("hidden");
+  }
+  function closeConfirm() { $("confirm").classList.add("hidden"); pendingDelete = null; }
+  $("cno").addEventListener("click", closeConfirm);
+  $("confirm").addEventListener("click", function (e) { if (e.target === $("confirm")) { closeConfirm(); } });
+  $("cyes").addEventListener("click", function () {
+    if (pendingDelete !== null && courses[pendingDelete]) {
+      var id = courses[pendingDelete].id;
+      courses.splice(pendingDelete, 1);
+      var k;
+      for (k in scores) {
+        if (Object.prototype.hasOwnProperty.call(scores, k) && k.indexOf(id + "|") === 0) { delete scores[k]; }
+      }
+      persist();
+      pickedWeek = null;
+      renderAll();
+    }
+    closeConfirm();
+  });
+
+  /* ---------------- input handling ---------------- */
+  var ta = $("text"), counter = $("counter"), runBtn = $("run");
+  function updateCounter() {
+    var n = ta.value.length;
+    counter.textContent = n.toLocaleString() + (n === 1 ? " character" : " characters");
+    counter.style.color = n > MAX_CHARS ? "var(--crunch)" : "";
+  }
+  ta.addEventListener("input", updateCounter);
+  ta.addEventListener("keydown", function (e) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") { e.preventDefault(); readSyllabus(); }
+  });
+  $("clearin").addEventListener("click", function () {
+    ta.value = "";
+    clearAttachment();
+    updateCounter();
+    hideNotice();
+    ta.focus();
+  });
+
+  /* ---------------- attachment ---------------- */
+  var attached = null;
+  var drop = $("drop"), fileinput = $("fileinput"), chipslot = $("chipslot");
+  var IMAGE_TYPES = { png: "image/png", jpg: "image/jpeg", jpeg: "image/jpeg", webp: "image/webp", gif: "image/gif" };
+  var TEXT_EXTS = { txt: 1, md: 1, markdown: 1, text: 1, csv: 1, rtf: 1 };
+
+  function extOf(name) {
+    var i = String(name).lastIndexOf(".");
+    return i === -1 ? "" : String(name).slice(i + 1).toLowerCase();
+  }
+  function readB64(file) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () {
+        var s = String(r.result);
+        var c = s.indexOf(",");
+        res(c === -1 ? s : s.slice(c + 1));
+      };
+      r.onerror = function () { rej(new Error("That file could not be read.")); };
+      r.readAsDataURL(file);
+    });
+  }
+  function readText(file) {
+    return new Promise(function (res, rej) {
+      var r = new FileReader();
+      r.onload = function () { res(String(r.result)); };
+      r.onerror = function () { rej(new Error("That file could not be read.")); };
+      r.readAsText(file);
+    });
+  }
+  function clearAttachment() {
+    attached = null;
+    clear(chipslot);
+    fileinput.value = "";
+  }
+  function showChip(name) {
+    clear(chipslot);
+    var chip = document.createElement("div");
+    chip.className = "chip-file";
+    var s = document.createElement("span");
+    s.textContent = name;
+    var x = document.createElement("button");
+    x.className = "chip-x";
+    x.type = "button";
+    x.setAttribute("aria-label", "Remove attachment");
+    x.textContent = "\u00d7";
+    x.addEventListener("click", clearAttachment);
+    chip.appendChild(s);
+    chip.appendChild(x);
+    chipslot.appendChild(chip);
+  }
+  function takeFile(file) {
+    if (!file) { return; }
+    if (file.size > MAX_FILE_BYTES) {
+      showNotice("That file is over 25 MB, which is more than the API accepts. Export a smaller PDF or paste the text.");
+      return;
+    }
+    var ext = extOf(file.name);
+    var isPdf = (ext === "pdf" || file.type === "application/pdf");
+    var img = IMAGE_TYPES[ext] || (/^image\//.test(file.type || "") ? file.type : null);
+
+    if (isPdf) {
+      readB64(file).then(function (b) {
+        attached = { kind: "pdf", name: file.name, data: b };
+        showChip(file.name);
+        hideNotice();
+      })["catch"](function (e) { showNotice(e.message); });
+      return;
+    }
+    if (TEXT_EXTS[ext] || /^text\//.test(file.type || "")) {
+      readText(file).then(function (t) {
+        clearAttachment();
+        ta.value = t.slice(0, MAX_CHARS);
+        updateCounter();
+        showNotice("Loaded " + file.name + " into the text box.", "info");
+      })["catch"](function (e) { showNotice(e.message); });
+      return;
+    }
+    if (img) {
+      readB64(file).then(function (b) {
+        attached = { kind: "image", name: file.name, mediaType: img, data: b };
+        showChip(file.name);
+        hideNotice();
+      })["catch"](function (e) { showNotice(e.message); });
+      return;
+    }
+    showNotice("That file type is not supported. Use a PDF, a plain text file, or a photo of the syllabus.");
+  }
+  $("pick").addEventListener("click", function () { fileinput.click(); });
+  drop.addEventListener("click", function (e) {
+    if (e.target === drop || (e.target.parentNode === drop && e.target.tagName === "P")) { fileinput.click(); }
+  });
+  fileinput.addEventListener("change", function () { takeFile(fileinput.files && fileinput.files[0]); });
+  ["dragenter", "dragover"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add("over"); });
+  });
+  ["dragleave", "drop"].forEach(function (ev) {
+    drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.remove("over"); });
+  });
+  drop.addEventListener("drop", function (e) {
+    if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]) { takeFile(e.dataTransfer.files[0]); }
+  });
+
+  /* ---------------- errors ---------------- */
+  function FErr(message, raw, title) {
+    this.message = message;
+    this.raw = raw || "";
+    this.title = title || "";
+  }
+  FErr.prototype = Object.create(Error.prototype);
+  FErr.prototype.constructor = FErr;
+
+  function netError(err) {
+    var local = (location.protocol === "file:");
+    var msg = local
+      ? "The browser blocked the request because this page was opened straight from disk, so its origin is null " +
+        "and Anthropic rejects it. Serve the folder over http instead, for example python3 -m http.server 8000, " +
+        "or use the published GitHub Pages URL."
+      : "The request never reached Anthropic. That is usually no network, an extension or corporate proxy " +
+        "blocking api.anthropic.com, or the request being stopped before it left the page. Underlying error: " +
+        (err && err.message ? err.message : "unknown") + ".";
+    return new FErr(msg, "", local ? "Blocked by the browser, not the API" : "Could not reach the API");
+  }
+  function apiError(r) {
+    var e = r.data && r.data.error ? r.data.error : null;
+    var detail = e && e.message ? e.message : (r.body ? String(r.body).slice(0, 400) : "No detail returned.");
+    var title = "Request failed with status " + r.status;
+    var msg = detail;
+    if (r.status === 401) {
+      title = "Key rejected";
+      msg = "The API key was rejected. Check that the whole key was pasted with no trailing space and that it is " +
+        "still active in the console. Detail: " + detail;
+    } else if (r.status === 403) {
+      title = "Not permitted";
+      msg = "The key is valid but not allowed to use this model. Detail: " + detail;
+    } else if (r.status === 404) {
+      title = "Model not found";
+      msg = "The model " + CLAUDE_MODEL + " was not found for this key. Detail: " + detail;
+    } else if (r.status === 400) {
+      title = "Request rejected";
+      msg = "Anthropic rejected the request as malformed. If a PDF is attached it may be encrypted, corrupt, or " +
+        "over the page limit. Detail: " + detail;
+    } else if (r.status === 413) {
+      title = "Too large";
+      msg = "The file was too large to accept. Export a smaller PDF or paste the text. Detail: " + detail;
+    } else if (r.status === 429) {
+      title = "Rate limited";
+      msg = "Rate limited, or the account is out of credit. Wait a moment and check the balance. Detail: " + detail;
+    } else if (r.status >= 500) {
+      title = "Server error";
+      msg = "Anthropic returned a server error. This is usually temporary. Detail: " + detail;
+    }
+    return new FErr(msg, r.body || "", title);
+  }
+  function parseJSON(raw) {
+    var t = String(raw).replace(/```json/gi, "").replace(/```/g, "").trim();
+    try { return JSON.parse(t); } catch (e) { /* try harder */ }
+    var a = t.indexOf("{"), b = t.lastIndexOf("}");
+    if (a !== -1 && b > a) {
+      try { return JSON.parse(t.slice(a, b + 1)); } catch (e2) { return null; }
+    }
+    return null;
+  }
+
+  /* ---------------- the call ---------------- */
+  function readSyllabus() {
+    var text = ta.value.trim();
+    if (!attached && !text) {
+      showNotice("Upload a syllabus or paste one first, or press Load sample term to see how it works.");
+      ta.focus();
+      return;
+    }
+    if (!hasKey()) {
+      showNotice("Add your Anthropic API key in Settings first.");
+      openSettings();
+      return;
+    }
+    if (!attached && text.length > MAX_CHARS) {
+      showNotice("That is over " + MAX_CHARS.toLocaleString() + " characters. Using the first " +
+        MAX_CHARS.toLocaleString() + " for this pass.", "info");
+      text = text.slice(0, MAX_CHARS);
+    }
+
+    var content;
+    if (attached) {
+      var block = attached.kind === "pdf"
+        ? { type: "document", source: { type: "base64", media_type: "application/pdf", data: attached.data } }
+        : { type: "image", source: { type: "base64", media_type: attached.mediaType, data: attached.data } };
+      content = [block, { type: "text", text: filePrompt(text.slice(0, 8000)) }];
+    } else {
+      content = textPrompt(text);
+    }
+
+    hideNotice();
+    runBtn.disabled = true;
+    runBtn.textContent = "Reading";
+    renderLoading(attached ? attached.name : "the pasted text");
+
+    fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": load(K_KEY, ""),
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: CLAUDE_MODEL,
+        max_tokens: 16000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: "user", content: content }]
+      })
+    }).then(function (res) {
+      return res.text().then(function (b) {
+        var d = null;
+        try { d = JSON.parse(b); } catch (e) { /* not json */ }
+        return { ok: res.ok, status: res.status, data: d, body: b };
+      });
+    }, function (e) { throw netError(e); }).then(function (r) {
+      if (!r.ok) { throw apiError(r); }
+      if (!r.data) { throw new FErr("The API replied with something that was not JSON.", r.body, "Unreadable reply"); }
+
+      var raw = (r.data.content || []).filter(function (b) { return b.type === "text"; })
+        .map(function (b) { return b.text; }).join("\n");
+
+      if (r.data.stop_reason === "max_tokens") {
+        throw new FErr("The extraction was cut off before it finished. This syllabus produces more structured " +
+          "output than one response can hold. Try it in halves: the front matter and grading first, then the " +
+          "week by week schedule.", raw, "Response ran out of room");
+      }
+      if (!raw.trim()) {
+        throw new FErr("The API returned an empty response. Stop reason was " +
+          (r.data.stop_reason || "not given") + ".", r.body, "Empty response");
+      }
+      var parsed = parseJSON(raw);
+      if (!parsed) {
+        throw new FErr("The response came back but was not valid JSON, so nothing could be laid out. Retrying " +
+          "usually clears it.", raw, "Could not parse the result");
+      }
+      if (parsed.error) { throw new FErr(String(parsed.error), raw, "That did not look like a syllabus"); }
+
+      var c = normalize(parsed);
+      if (!c.items.length && !c.scheme.length) {
+        throw new FErr("Nothing usable came back from that document. No grading breakdown and no dated work. " +
+          "Try a page that has the schedule or the grading table on it.", raw, "Nothing to forecast");
+      }
+      courses.push(c);
+      persist();
+      ta.value = "";
+      clearAttachment();
+      updateCounter();
+      pickedWeek = null;
+      tab = "forecast";
+      renderAll();
+      showNotice("Added " + c.name + ".", "info");
+      $("railsec").scrollIntoView({ behavior: "smooth", block: "start" });
+    })["catch"](function (err) {
+      var e = (err instanceof FErr) ? err : new FErr(err && err.message ? err.message : "Something went wrong reaching the API.", "");
+      renderDiagnostic(e);
+      showNotice(e.message, "error", e.title || "That did not work");
+    }).then(function () {
+      runBtn.disabled = false;
+      runBtn.textContent = "Read syllabus";
+    });
+  }
+  runBtn.addEventListener("click", readSyllabus);
+
+  /* ---------------- normalize ---------------- */
+  var TYPES = { exam: 1, quiz: 1, assignment: 1, project: 1, reading: 1, discussion: 1, deadline: 1, holiday: 1, other: 1 };
+
+  function normalize(d) {
+    d = d || {};
+    var co = d.course || {};
+    var name = String(co.code || "").trim();
+    var title = String(co.title || "").trim();
+    var label = (name && title) ? (name + " " + title) : (name || title || "Untitled course");
+    if (label.length > 62) { label = label.slice(0, 60) + "\u2026"; }
+
+    var scheme = [];
+    var raw = (d.scheme instanceof Array) ? d.scheme : [];
+    var i;
+    for (i = 0; i < raw.length; i++) {
+      var w = parseFloat(raw[i] && raw[i].weight);
+      var nm = String((raw[i] && raw[i].item) || "").trim().slice(0, 44);
+      var cnt = parseInt(raw[i] && raw[i].count, 10);
+      if (!isFinite(cnt) || cnt < 1) { cnt = 1; }
+      if (cnt > 60) { cnt = 60; }
+      var drp = parseInt(raw[i] && raw[i].drop, 10);
+      if (!isFinite(drp) || drp < 0) { drp = 0; }
+      if (drp > cnt - 1) { drp = Math.max(0, cnt - 1); }
+      if (nm && isFinite(w) && w >= 0) {
+        scheme.push({
+          item: nm, weight: r1(w), count: cnt, drop: drp,
+          extraCredit: (raw[i] && raw[i].extraCredit) === true,
+          note: String((raw[i] && raw[i].note) || "").slice(0, 90)
+        });
+      }
+    }
+
+    var items = [];
+    var ri = (d.items instanceof Array) ? d.items : [];
+    for (i = 0; i < ri.length; i++) {
+      var it = ri[i] || {};
+      var lab = String(it.label || "").trim().slice(0, 90);
+      if (!lab) { continue; }
+      var ty = String(it.type || "other").toLowerCase();
+      if (!TYPES[ty]) { ty = "other"; }
+      var cad = String(it.cadence || "once").toLowerCase();
+      if (cad !== "weekly" && cad !== "biweekly") { cad = "once"; }
+      var hrs = parseFloat(it.hours);
+      if (!isFinite(hrs) || hrs < 0) { hrs = (ty === "holiday" ? 0 : 2); }
+      if (hrs > 60) { hrs = 60; }
+      var wt = parseFloat(it.weight);
+      if (!isFinite(wt) || wt < 0) { wt = 0; }
+      var df = parseInt(it.difficulty, 10);
+      if (!isFinite(df) || df < 1) { df = 2; }
+      if (df > 5) { df = 5; }
+      items.push({
+        label: lab, type: ty, cadence: cad,
+        iso: parseIso(it.iso) ? String(it.iso).slice(0, 10) : "",
+        startIso: parseIso(it.startIso) ? String(it.startIso).slice(0, 10) : "",
+        endIso: parseIso(it.endIso) ? String(it.endIso).slice(0, 10) : "",
+        display: String(it.display || "").slice(0, 40),
+        weight: r1(wt), hours: r1(hrs), difficulty: df,
+        note: String(it.note || "").slice(0, 160)
+      });
+    }
+
+    var watch = [];
+    var rw = (d.watch instanceof Array) ? d.watch : [];
+    for (i = 0; i < rw.length && watch.length < 5; i++) {
+      var s = String(rw[i] || "").trim();
+      if (s) { watch.push(s.slice(0, 220)); }
+    }
+
+    var tg = parseFloat(d.target);
+    if (!isFinite(tg) || tg < 50 || tg > 100) { tg = 90; }
+
+    var pol = d.policies || {};
+    var ins = d.instructor || {};
+
+    return {
+      id: "c" + Date.now().toString(36) + Math.floor(Math.random() * 4096).toString(36),
+      name: label,
+      term: String(co.term || "").slice(0, 40),
+      credits: String(co.credits || "").slice(0, 20),
+      startIso: parseIso(co.startIso) ? String(co.startIso).slice(0, 10) : "",
+      endIso: parseIso(co.endIso) ? String(co.endIso).slice(0, 10) : "",
+      instructor: {
+        name: String(ins.name || "").slice(0, 60),
+        email: String(ins.email || "").slice(0, 80),
+        officeHours: String(ins.officeHours || "").slice(0, 160)
+      },
+      target: tg,
+      scheme: scheme,
+      items: items,
+      policies: {
+        attendance: String(pol.attendance || "").slice(0, 600),
+        ai: String(pol.ai || "").slice(0, 600),
+        lateWork: String(pol.lateWork || "").slice(0, 600),
+        integrity: String(pol.integrity || "").slice(0, 600),
+        communication: String(pol.communication || "").slice(0, 600)
+      },
+      watch: watch,
+      loadNote: String(d.loadNote || "").slice(0, 240)
+    };
+  }
+
+  function colorFor(idx) { return COURSE_COLORS[idx % COURSE_COLORS.length]; }
+
+  /* ---------------- forecast math ---------------- */
+  function occurrences(it) {
+    var out = [];
+    if (it.cadence === "once") {
+      if (it.iso) { out.push(it.iso); }
+      return out;
+    }
+    var s = parseIso(it.startIso), e = parseIso(it.endIso);
+    if (!s || !e || e.getTime() < s.getTime()) {
+      if (it.iso) { out.push(it.iso); }
+      return out;
+    }
+    var step = (it.cadence === "biweekly") ? 14 : 7;
+    var cur = s, guard = 0;
+    while (cur.getTime() <= e.getTime() && guard < 60) {
+      out.push(isoOf(cur));
+      cur = addDays(cur, step);
+      guard++;
+    }
+    return out;
+  }
+
+  /* load points: hours of effort plus a pressure premium for what the item is worth */
+  function loadOf(hours, weightPer) { return hours + weightPer * 0.4; }
+
+  function buildForecast() {
+    var map = {};
+    var undated = [];
+    var ci, ii, oi;
+
+    for (ci = 0; ci < courses.length; ci++) {
+      var c = courses[ci];
+      for (ii = 0; ii < c.items.length; ii++) {
+        var it = c.items[ii];
+        var occ = occurrences(it);
+        if (!occ.length) {
+          undated.push({ ci: ci, it: it });
+          continue;
+        }
+        var wPer = it.weight / occ.length;
+        for (oi = 0; oi < occ.length; oi++) {
+          var wk = mondayOf(occ[oi]);
+          if (!wk) { continue; }
+          if (!map[wk]) { map[wk] = { week: wk, total: 0, hours: 0, byCourse: {}, entries: [] }; }
+          var pt = loadOf(it.hours, wPer);
+          map[wk].total += pt;
+          map[wk].hours += it.hours;
+          map[wk].byCourse[ci] = (map[wk].byCourse[ci] || 0) + pt;
+          map[wk].entries.push({ ci: ci, it: it, iso: occ[oi], weightPer: r1(wPer), pts: pt });
+        }
+      }
+    }
+
+    var keys = Object.keys(map).sort();
+    var weeks = [];
+    if (keys.length) {
+      var cur = parseIso(keys[0]);
+      var last = parseIso(keys[keys.length - 1]);
+      var termStart = null, termEnd = null, k;
+      for (k = 0; k < courses.length; k++) {
+        var cs = mondayOf(courses[k].startIso), ce = mondayOf(courses[k].endIso);
+        if (cs && (!termStart || cs < termStart)) { termStart = cs; }
+        if (ce && (!termEnd || ce > termEnd)) { termEnd = ce; }
+      }
+      if (termStart && parseIso(termStart) < cur) { cur = parseIso(termStart); }
+      if (termEnd && parseIso(termEnd) > last) { last = parseIso(termEnd); }
+
+      var guard = 0;
+      while (cur.getTime() <= last.getTime() && guard < 80) {
+        var key = isoOf(cur);
+        weeks.push(map[key] || { week: key, total: 0, hours: 0, byCourse: {}, entries: [] });
+        cur = addDays(cur, 7);
+        guard++;
+      }
+    }
+
+    var peak = 0, sum = 0, j;
+    for (j = 0; j < weeks.length; j++) {
+      if (weeks[j].total > peak) { peak = weeks[j].total; }
+      sum += weeks[j].total;
+      weeks[j].entries.sort(function (a, b) { return a.iso < b.iso ? -1 : (a.iso > b.iso ? 1 : 0); });
+    }
+    for (j = 0; j < weeks.length; j++) {
+      weeks[j].idx = j + 1;
+      weeks[j].pct = peak > 0 ? weeks[j].total / peak : 0;
+      weeks[j].band = bandOf(weeks[j].pct);
+    }
+    return { weeks: weeks, peak: peak, sum: sum, undated: undated };
+  }
+
+  function bandOf(pct) {
+    var b = BANDS[0], i;
+    for (i = 0; i < BANDS.length; i++) { if (pct >= BANDS[i].min) { b = BANDS[i]; } }
+    return b;
+  }
+
+  /* ---------------- render ---------------- */
+  var panel = $("panel");
+
+  function renderLoading(what) {
+    clear(panel);
+    var d = document.createElement("div");
+    d.className = "card card-pad";
+    d.innerHTML = '<p class="eyebrow">Reading ' + esc(what) + "</p>" +
+      '<div class="skel" style="width:62%"></div><div class="skel" style="width:88%"></div>' +
+      '<div class="skel" style="width:74%"></div><div class="skel" style="width:40%"></div>' +
+      '<p class="muted" style="font-size:13px;margin:14px 0 0">Pulling out the schedule, the grading table, ' +
+      "the policies, and an effort estimate for every deliverable. A dense PDF takes a few seconds.</p>";
+    panel.appendChild(d);
+  }
+
+  function renderDiagnostic(e) {
+    clear(panel);
+    var d = document.createElement("div");
+    d.className = "card card-pad";
+    var html = '<p class="eyebrow">Diagnostic</p><h2>' + esc(e.title || "That did not work") + "</h2>" +
+      '<p style="font-size:13.5px;color:var(--ink2)">' + esc(e.message) + "</p>";
+    if (e.raw) { html += '<div class="rawbox">' + esc(String(e.raw).slice(0, 4000)) + "</div>"; }
+    d.innerHTML = html;
+    panel.appendChild(d);
+    if (courses.length) {
+      var again = document.createElement("div");
+      again.style.marginTop = "14px";
+      panel.appendChild(again);
+      renderInto(again);
+    }
+  }
+
+  function renderAll() {
+    var fr = $("firstrun");
+    if (fr) { fr.classList.add("hidden"); }
+    renderRail();
+    if (!courses.length) {
+      $("railsec").classList.add("hidden");
+      $("toolsec").classList.add("hidden");
+      $("tabsec").classList.add("hidden");
+      clear(panel);
+      var d = document.createElement("div");
+      d.className = "card card-pad empty";
+      d.innerHTML = '<div class="big">&#127756;</div><p>No courses yet. Add one syllabus and you get its dates, ' +
+        "weights, and policies. Add the rest and they stack into a single semester forecast that shows which " +
+        "weeks are calm and which weeks are going to hurt.</p>";
+      panel.appendChild(d);
+      return;
+    }
+    $("railsec").classList.remove("hidden");
+    $("toolsec").classList.remove("hidden");
+    $("tabsec").classList.remove("hidden");
+    var t;
+    var ids = ["forecast", "work", "grades", "policies"];
+    for (t = 0; t < ids.length; t++) {
+      $("tab-" + ids[t]).setAttribute("aria-selected", ids[t] === tab ? "true" : "false");
+    }
+    clear(panel);
+    renderInto(panel);
+    clear($("report"));
+  }
+
+  function renderInto(host) {
+    if (tab === "forecast") { renderForecast(host); }
+    else if (tab === "work") { renderWork(host); }
+    else if (tab === "grades") { renderGrades(host); }
+    else { renderPolicies(host); }
+  }
+
+  function renderRail() {
+    var rail = $("rail");
+    clear(rail);
+    var i;
+    for (i = 0; i < courses.length; i++) {
+      (function (idx) {
+        var c = courses[idx];
+        var sum = baseWeightTotal(c);
+        var ec = ecWeightTotal(c);
+        var el = document.createElement("div");
+        el.className = "crs";
+        var dot = document.createElement("span");
+        dot.className = "dotc";
+        dot.style.background = colorFor(idx);
+        var b = document.createElement("b");
+        b.textContent = c.name;
+        var w = document.createElement("span");
+        w.className = "wsum" + (c.scheme.length && Math.abs(sum - 100) > 1 ? " bad" : "");
+        w.textContent = c.scheme.length
+          ? (r1(sum) + "%" + (ec > 0 ? " +" + r1(ec) : ""))
+          : "no table";
+        w.title = !c.scheme.length ? "No grading table came back for this course."
+          : (Math.abs(sum - 100) > 1
+            ? "The graded weights in this syllabus add up to " + r1(sum) + "%, not 100%."
+            : "Grading weights add up.") +
+            (ec > 0 ? " Plus up to " + r1(ec) + "% of extra credit on top." : "");
+        var x = document.createElement("button");
+        x.className = "chip-x";
+        x.type = "button";
+        x.setAttribute("aria-label", "Remove " + c.name);
+        x.textContent = "\u00d7";
+        x.addEventListener("click", function () { openConfirm(idx); });
+        el.appendChild(dot);
+        el.appendChild(b);
+        el.appendChild(w);
+        el.appendChild(x);
+        rail.appendChild(el);
+      })(i);
+    }
+    var add = document.createElement("button");
+    add.className = "btn btn-sm";
+    add.type = "button";
+    add.textContent = "+ Add another course";
+    add.addEventListener("click", function () {
+      $("intake").scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(function () { ta.focus(); }, 320);
+    });
+    rail.appendChild(add);
+  }
+
+  /* ---------- forecast tab ---------- */
+  function renderForecast(host) {
+    var f = buildForecast();
+    var card = document.createElement("div");
+    card.className = "card card-pad";
+
+    if (!f.weeks.length) {
+      card.innerHTML = '<p class="eyebrow">Forecast</p><div class="empty"><div class="big">&#128197;</div>' +
+        "<p>Nothing in these syllabi carried a date that could be resolved, so there is no week by week shape to " +
+        "draw. The Deliverables, Grades, and Policies tabs still have everything that came back.</p></div>";
+      host.appendChild(card);
+      return;
+    }
+
+    var head = document.createElement("div");
+    head.innerHTML = '<p class="eyebrow">Week by week</p>' +
+      "<h2>" + f.weeks.length + " weeks across " + courses.length +
+      (courses.length === 1 ? " course" : " courses") + "</h2>" +
+      '<p class="muted" style="font-size:13px;margin:5px 0 0">Bar height is estimated effort for that week, ' +
+      "stacked by course. Intensity is measured against your own heaviest week, so the colors say where the " +
+      "pressure sits in this term, not how this term compares to anyone else's. Tap a week for the detail.</p>";
+    card.appendChild(head);
+
+    var wrap = document.createElement("div");
+    wrap.className = "strip-wrap";
+    var strip = document.createElement("div");
+    strip.className = "strip";
+
+    var today = todayIso();
+    var thisWeek = mondayOf(today);
+
+    var i;
+    for (i = 0; i < f.weeks.length; i++) {
+      (function (wk) {
+        var btn = document.createElement("button");
+        btn.className = "wk";
+        btn.type = "button";
+        btn.setAttribute("aria-pressed", pickedWeek === wk.week ? "true" : "false");
+        btn.title = "Week " + wk.idx + " of " + shortDate(wk.week) + " \u2014 " + wk.band.label +
+          ", about " + Math.round(wk.hours) + " hours";
+
+        var bar = document.createElement("div");
+        bar.className = "wk-bar";
+        var maxH = 166;
+        var ci;
+        var keys = Object.keys(wk.byCourse).sort(function (a, b) { return (+a) - (+b); });
+        for (ci = 0; ci < keys.length; ci++) {
+          var seg = document.createElement("div");
+          seg.className = "seg";
+          var h = f.peak > 0 ? (wk.byCourse[keys[ci]] / f.peak) * maxH : 0;
+          seg.style.height = Math.max(2, Math.round(h)) + "px";
+          seg.style.background = colorFor(+keys[ci]);
+          seg.style.opacity = "0.92";
+          bar.appendChild(seg);
+        }
+        btn.appendChild(bar);
+
+        var heat = document.createElement("div");
+        heat.className = "wk-heat";
+        heat.style.background = wk.band.color;
+        btn.appendChild(heat);
+
+        var lab = document.createElement("div");
+        lab.className = "wk-lab";
+        var strong = document.createElement("b");
+        strong.textContent = String(wk.idx);
+        lab.appendChild(strong);
+        var dt = document.createTextNode(shortDate(wk.week));
+        lab.appendChild(dt);
+        if (wk.week === thisWeek) {
+          var now = document.createElement("div");
+          now.textContent = "now";
+          now.style.color = "var(--accent)";
+          now.style.fontWeight = "600";
+          lab.appendChild(now);
+        }
+        btn.appendChild(lab);
+
+        btn.addEventListener("click", function () {
+          pickedWeek = (pickedWeek === wk.week) ? null : wk.week;
+          renderAll();
+        });
+        strip.appendChild(btn);
+      })(f.weeks[i]);
+    }
+    wrap.appendChild(strip);
+    card.appendChild(wrap);
+
+    var leg = document.createElement("div");
+    leg.className = "legend";
+    var lh = "";
+    for (i = 1; i < BANDS.length; i++) {
+      lh += '<span><i class="sw" style="background:' + BANDS[i].color + '"></i>' + BANDS[i].label + "</span>";
+    }
+    lh += '<span class="muted" style="margin-left:auto">' + esc(courseLegend()) + "</span>";
+    leg.innerHTML = lh;
+    card.appendChild(leg);
+
+    /* stats */
+    var totalHours = 0, crunchCount = 0, clearCount = 0;
+    for (i = 0; i < f.weeks.length; i++) {
+      totalHours += f.weeks[i].hours;
+      if (f.weeks[i].band.key === "crunch") { crunchCount++; }
+      if (f.weeks[i].band.key === "clear") { clearCount++; }
+    }
+    var peakWeek = f.weeks[0];
+    for (i = 0; i < f.weeks.length; i++) { if (f.weeks[i].total > peakWeek.total) { peakWeek = f.weeks[i]; } }
+
+    var stats = document.createElement("div");
+    stats.className = "stats";
+    stats.innerHTML =
+      statHtml("Total effort", Math.round(totalHours) + " h", "estimated across the whole term") +
+      statHtml("Weekly average", r1(totalHours / f.weeks.length) + " h", "spread evenly, which it is not") +
+      statHtml("Heaviest week", "Week " + peakWeek.idx, shortDate(peakWeek.week) + ", about " + Math.round(peakWeek.hours) + " h") +
+      statHtml("Crunch weeks", String(crunchCount), crunchCount === 1 ? "week in the top band" : "weeks in the top band") +
+      statHtml("Clear weeks", String(clearCount), "nothing due at all");
+    card.appendChild(stats);
+
+    /* callouts */
+    var hot = [], cool = [];
+    for (i = 0; i < f.weeks.length; i++) {
+      if (f.weeks[i].band.key === "crunch" || f.weeks[i].band.key === "busy") { hot.push(f.weeks[i]); }
+    }
+    hot.sort(function (a, b) { return b.total - a.total; });
+    hot = hot.slice(0, 4);
+    cool = longestCalmRun(f.weeks);
+
+    var co = document.createElement("div");
+    co.className = "callouts";
+
+    var hotHtml = '<div class="callout hot"><h3>Where it gets heavy</h3>';
+    if (hot.length) {
+      hotHtml += "<p>These are the weeks worth clearing your calendar for. Start the big items early.</p><ul>";
+      for (i = 0; i < hot.length; i++) {
+        hotHtml += "<li><b>Week " + hot[i].idx + "</b> (" + esc(shortDate(hot[i].week)) + "): about " +
+          Math.round(hot[i].hours) + " h across " + hot[i].entries.length +
+          (hot[i].entries.length === 1 ? " item" : " items") + ". " + esc(topItemsOf(hot[i])) + "</li>";
+      }
+      hotHtml += "</ul>";
+    } else {
+      hotHtml += "<p>No week stands out as a crunch. The work is spread evenly enough that no single stretch " +
+        "dominates the term.</p>";
+    }
+    hotHtml += "</div>";
+
+    var coolHtml = '<div class="callout cool"><h3>Where you can breathe</h3>';
+    if (cool.run >= 2) {
+      coolHtml += "<p>Weeks " + cool.from + " through " + cool.to + " (" + esc(shortDate(cool.fromIso)) + " to " +
+        esc(shortDate(cool.toIso)) + ") are the lightest stretch of the term. That is " + cool.run +
+        " weeks of room, which is exactly where the work from the crunch weeks should get pulled forward.</p>";
+    } else if (cool.run === 1) {
+      coolHtml += "<p>Week " + cool.from + " (" + esc(shortDate(cool.fromIso)) + ") is the single lightest week " +
+        "of the term. There is not much slack here, so anything big needs a running start.</p>";
+    } else {
+      coolHtml += "<p>Every week in this term carries something. There is no genuine light stretch to lean on, " +
+        "so front loading the large assignments matters more than usual.</p>";
+    }
+    var notes = [];
+    for (i = 0; i < courses.length; i++) {
+      if (has(courses[i].loadNote)) { notes.push(courses[i].name + ": " + courses[i].loadNote); }
+    }
+    if (notes.length) {
+      coolHtml += "<ul>";
+      for (i = 0; i < notes.length; i++) { coolHtml += "<li>" + esc(notes[i]) + "</li>"; }
+      coolHtml += "</ul>";
+    }
+    coolHtml += "</div>";
+
+    co.innerHTML = hotHtml + coolHtml;
+    card.appendChild(co);
+
+    /* picked week detail */
+    if (pickedWeek) {
+      var wk = null;
+      for (i = 0; i < f.weeks.length; i++) { if (f.weeks[i].week === pickedWeek) { wk = f.weeks[i]; } }
+      if (wk) {
+        var det = document.createElement("div");
+        det.className = "wkdetail";
+        var dh = '<p class="eyebrow">Week ' + wk.idx + " \u00b7 " + esc(shortDate(wk.week)) + " \u2013 " +
+          esc(shortDate(isoOf(addDays(parseIso(wk.week), 6)))) + "</p>" +
+          "<h3>" + wk.band.label + " \u00b7 about " + Math.round(wk.hours) + " estimated hours</h3>";
+        det.innerHTML = dh;
+        if (!wk.entries.length) {
+          var e0 = document.createElement("p");
+          e0.className = "muted";
+          e0.style.fontSize = "13.5px";
+          e0.style.margin = "8px 0 0";
+          e0.textContent = "Nothing is due this week in any course. This is real breathing room, so it is the " +
+            "best place to move work forward from a heavier week.";
+          det.appendChild(e0);
+        } else {
+          var list = document.createElement("div");
+          list.style.marginTop = "8px";
+          var j;
+          for (j = 0; j < wk.entries.length; j++) { list.appendChild(itemRow(wk.entries[j])); }
+          det.appendChild(list);
+        }
+        card.appendChild(det);
+      }
+    }
+
+    host.appendChild(card);
+
+    if (f.undated.length) {
+      var u = document.createElement("div");
+      u.className = "card card-pad";
+      u.style.marginTop = "14px";
+      u.innerHTML = '<p class="eyebrow">Not on the calendar</p><h3>' + f.undated.length +
+        (f.undated.length === 1 ? " item has no resolvable date" : " items have no resolvable date") + "</h3>" +
+        '<p class="muted" style="font-size:13px;margin:5px 0 10px">These are counted in your grade but left out ' +
+        "of the week by week shape, because the syllabus described them by week number or not at all.</p>";
+      var ul = document.createElement("div");
+      var q;
+      for (q = 0; q < f.undated.length; q++) {
+        ul.appendChild(itemRow({ ci: f.undated[q].ci, it: f.undated[q].it, iso: "", weightPer: f.undated[q].it.weight }));
+      }
+      u.appendChild(ul);
+      host.appendChild(u);
+    }
+  }
+
+  function courseLegend() {
+    var out = [], i;
+    for (i = 0; i < courses.length; i++) { out.push(courses[i].name); }
+    return out.join("  \u00b7  ");
+  }
+  function statHtml(k, v, n) {
+    return '<div class="stat"><div class="k">' + esc(k) + '</div><div class="v">' + esc(v) +
+      '</div><div class="n">' + esc(n) + "</div></div>";
+  }
+  function topItemsOf(wk) {
+    var e = wk.entries.slice().sort(function (a, b) { return b.pts - a.pts; }).slice(0, 2);
+    var out = [], i;
+    for (i = 0; i < e.length; i++) { out.push(e[i].it.label); }
+    return out.length ? "Chiefly " + out.join(" and ") + "." : "";
+  }
+  function longestCalmRun(weeks) {
+    var best = { run: 0, from: 0, to: 0, fromIso: "", toIso: "" };
+    var cur = 0, startI = 0, i;
+    for (i = 0; i < weeks.length; i++) {
+      var light = (weeks[i].band.key === "clear" || weeks[i].band.key === "calm");
+      if (light) {
+        if (cur === 0) { startI = i; }
+        cur++;
+        if (cur > best.run) {
+          best = {
+            run: cur, from: weeks[startI].idx, to: weeks[i].idx,
+            fromIso: weeks[startI].week, toIso: weeks[i].week
+          };
+        }
+      } else { cur = 0; }
+    }
+    return best;
+  }
+
+  function itemRow(entry) {
+    var c = courses[entry.ci];
+    var it = entry.it;
+    var row = document.createElement("div");
+    row.className = "row";
+
+    var when = document.createElement("div");
+    when.className = "when";
+    if (entry.iso) {
+      when.innerHTML = "<b>" + esc(String(parseIso(entry.iso).getUTCDate())) + "</b>" +
+        esc(MON[parseIso(entry.iso).getUTCMonth()]) + "<br>" + esc(dayAbbr(entry.iso));
+    } else {
+      when.innerHTML = "<b>&#8212;</b>" + esc(it.display || "undated");
+    }
+    row.appendChild(when);
+
+    var body = document.createElement("div");
+    body.className = "body";
+    var t = document.createElement("div");
+    t.className = "t";
+    t.textContent = it.label;
+    body.appendChild(t);
+
+    var m = document.createElement("div");
+    m.className = "m";
+    var mh = '<span class="tag ' + esc(it.type) + '">' + esc(it.type) + "</span>";
+    mh += '<span style="display:inline-flex;align-items:center;gap:5px"><i class="sw" style="background:' +
+      colorFor(entry.ci) + '"></i>' + esc(c.name) + "</span>";
+    if (it.hours > 0) { mh += "<span>" + r1(it.hours) + " h</span>"; }
+    if (entry.weightPer > 0) { mh += "<span>" + r1(entry.weightPer) + "% of grade</span>"; }
+    if (it.cadence !== "once") { mh += "<span>" + esc(it.cadence) + "</span>"; }
+    mh += '<span class="diff" title="Difficulty ' + it.difficulty + ' of 5">';
+    var d;
+    for (d = 1; d <= 5; d++) { mh += "<i" + (d <= it.difficulty ? ' class="on"' : "") + "></i>"; }
+    mh += "</span>";
+    m.innerHTML = mh;
+    body.appendChild(m);
+
+    if (has(it.note)) {
+      var n = document.createElement("div");
+      n.className = "m";
+      n.style.color = "var(--ink2)";
+      n.textContent = it.note;
+      body.appendChild(n);
+    }
+    row.appendChild(body);
+    return row;
+  }
+
+  /* ---------- deliverables tab ---------- */
+  var FILTERS = [
+    { k: "all", l: "Everything" },
+    { k: "exam", l: "Exams" },
+    { k: "project", l: "Projects" },
+    { k: "assignment", l: "Assignments" },
+    { k: "quiz", l: "Quizzes" },
+    { k: "deadline", l: "Deadlines" },
+    { k: "graded", l: "Graded only" }
+  ];
+
+  function renderWork(host) {
+    var f = buildForecast();
+    var card = document.createElement("div");
+    card.className = "card card-pad";
+    card.innerHTML = '<p class="eyebrow">Deliverables</p><h2>Everything the term asks of you</h2>' +
+      '<p class="muted" style="font-size:13px;margin:5px 0 0">Grouped by week, across every course. Hours and ' +
+      "difficulty are Claude's estimate, not the syllabus speaking.</p>";
+
+    var fl = document.createElement("div");
+    fl.className = "filters";
+    var i;
+    for (i = 0; i < FILTERS.length; i++) {
+      (function (ff) {
+        var b = document.createElement("button");
+        b.className = "fbtn";
+        b.type = "button";
+        b.textContent = ff.l;
+        b.setAttribute("aria-pressed", typeFilter === ff.k ? "true" : "false");
+        b.addEventListener("click", function () { typeFilter = ff.k; renderAll(); });
+        fl.appendChild(b);
+      })(FILTERS[i]);
+    }
+    card.appendChild(fl);
+
+    var shown = 0;
+    var body = document.createElement("div");
+    for (i = 0; i < f.weeks.length; i++) {
+      var wk = f.weeks[i];
+      var keep = [], j;
+      for (j = 0; j < wk.entries.length; j++) {
+        if (passFilter(wk.entries[j])) { keep.push(wk.entries[j]); }
+      }
+      if (!keep.length) { continue; }
+      var h = document.createElement("div");
+      h.className = "eyebrow";
+      h.style.marginTop = shown === 0 ? "12px" : "20px";
+      h.textContent = "Week " + wk.idx + " \u00b7 " + shortDate(wk.week) + " \u00b7 " + wk.band.label +
+        " \u00b7 " + Math.round(wk.hours) + " h";
+      body.appendChild(h);
+      for (j = 0; j < keep.length; j++) { body.appendChild(itemRow(keep[j])); shown++; }
+    }
+    var uk = [];
+    for (i = 0; i < f.undated.length; i++) {
+      var e = { ci: f.undated[i].ci, it: f.undated[i].it, iso: "", weightPer: f.undated[i].it.weight };
+      if (passFilter(e)) { uk.push(e); }
+    }
+    if (uk.length) {
+      var uh = document.createElement("div");
+      uh.className = "eyebrow";
+      uh.style.marginTop = "20px";
+      uh.textContent = "No resolvable date";
+      body.appendChild(uh);
+      for (i = 0; i < uk.length; i++) { body.appendChild(itemRow(uk[i])); shown++; }
+    }
+    if (!shown) {
+      var em = document.createElement("div");
+      em.className = "empty";
+      em.innerHTML = '<div class="big">&#128269;</div><p>Nothing matches that filter.</p>';
+      body.appendChild(em);
+    }
+    card.appendChild(body);
+    host.appendChild(card);
+  }
+
+  function passFilter(e) {
+    if (typeFilter === "all") { return true; }
+    if (typeFilter === "graded") { return e.weightPer > 0; }
+    return e.it.type === typeFilter;
+  }
+
+  /* ---------- grades tab ---------- */
+  function scoreKey(cid, i) { return cid + "|" + i; }
+  function subKey(cid, i, k) { return cid + "|" + i + "|" + k; }
+
+  /* ---------- category standing ----------
+     A scheme line can be a single graded thing, or a bucket of many: ten labs, fourteen
+     discussion posts, three cases. When it is a bucket the syllabus often also says how many
+     of the lowest are dropped. Either the whole category gets one score, or the individual
+     pieces do and the category score is computed from them with the drop rule applied.
+     Individual entries always win over a category-level one. */
+  function categoryStanding(c, si) {
+    var s = c.scheme[si];
+    var n = (s.count > 1) ? s.count : 1;
+    var d = Math.max(0, Math.min(s.drop, n - 1));
+    var effTotal = Math.max(1, n - d);
+
+    var vals = [], raw = [], k, p;
+    for (k = 0; k < n; k++) {
+      p = parseScore(scores[subKey(c.id, si, k)]);
+      if (p !== null) { vals.push(p); raw.push({ k: k, p: p }); }
+    }
+
+    if (vals.length) {
+      var sorted = vals.slice().sort(function (a, b) { return a - b; });
+      var dropsApplied = Math.min(d, sorted.length - 1);
+      var dropped = sorted.slice(0, dropsApplied);
+      var kept = sorted.slice(dropsApplied);
+      var sum = 0, j;
+      for (j = 0; j < kept.length; j++) { sum += kept[j]; }
+      return {
+        mode: "items", pct: sum / kept.length,
+        fraction: Math.min(1, kept.length / effTotal),
+        n: n, drop: d, effTotal: effTotal,
+        entered: vals.length, kept: kept.length,
+        dropsApplied: dropsApplied, dropped: dropped
+      };
+    }
+
+    var cp = parseScore(scores[scoreKey(c.id, si)]);
+    if (cp !== null) {
+      return {
+        mode: "category", pct: cp, fraction: 1, n: n, drop: d, effTotal: effTotal,
+        entered: 0, kept: 0, dropsApplied: 0, dropped: []
+      };
+    }
+    return {
+      mode: "none", pct: null, fraction: 0, n: n, drop: d, effTotal: effTotal,
+      entered: 0, kept: 0, dropsApplied: 0, dropped: []
+    };
+  }
+
+  /* ---------- whole-course computation ----------
+     One place computes everything the card and the runway need, so the row readouts and the
+     verdict can never disagree. Extra credit is kept strictly apart from the base: it adds to
+     what you have earned but never to the denominator, which is what makes it a bonus rather
+     than just another graded line. */
+  function computeCourse(c) {
+    var scale = 0, earnedBase = 0, gradedBaseW = 0;
+    var earnedEC = 0, ecAvailable = 0, ecClaimed = 0;
+    var standings = [], i, s, st;
+
+    for (i = 0; i < c.scheme.length; i++) {
+      s = c.scheme[i];
+      st = categoryStanding(c, i);
+      standings.push(st);
+      if (s.extraCredit) {
+        ecAvailable += s.weight;
+        if (st.pct !== null) {
+          ecClaimed += s.weight * st.fraction;
+          earnedEC += s.weight * st.fraction * (st.pct / 100);
+        }
+      } else {
+        scale += s.weight;
+        if (st.pct !== null) {
+          gradedBaseW += s.weight * st.fraction;
+          earnedBase += s.weight * st.fraction * (st.pct / 100);
+        }
+      }
+    }
+    if (scale <= 0) { scale = 100; }
+    var open = scale - gradedBaseW;
+    if (open < 0.0001) { open = 0; }
+
+    return {
+      standings: standings,
+      scale: scale,
+      earnedBase: earnedBase,
+      earnedEC: earnedEC,
+      gradedBaseW: gradedBaseW,
+      open: open,
+      lost: gradedBaseW - earnedBase,
+      ecAvailable: ecAvailable,
+      ecClaimed: ecClaimed,
+      ecOpen: Math.max(0, ecAvailable - ecClaimed),
+      baseTotal: scale
+    };
+  }
+
+  function baseWeightTotal(c) {
+    var t = 0, i;
+    for (i = 0; i < c.scheme.length; i++) {
+      if (!c.scheme[i].extraCredit) { t += c.scheme[i].weight; }
+    }
+    return t;
+  }
+  function ecWeightTotal(c) {
+    var t = 0, i;
+    for (i = 0; i < c.scheme.length; i++) {
+      if (c.scheme[i].extraCredit) { t += c.scheme[i].weight; }
+    }
+    return t;
+  }
+
+  function renderGrades(host) {
+    var i;
+    for (i = 0; i < courses.length; i++) { host.appendChild(gradeCard(i)); }
+
+    var note = document.createElement("div");
+    note.className = "card card-pad";
+    note.innerHTML = '<p class="eyebrow">Entering scores</p>' +
+      '<p style="font-size:13.5px;color:var(--ink2);margin:0 0 6px">Put in either form, whichever way the ' +
+      "grade came back. A plain percent like <code>88</code> or <code>88%</code> is taken as it stands. Raw " +
+      "points off the rubric like <code>22/25</code>, <code>17.5 / 20</code>, or <code>22 out of 25</code> are " +
+      "converted for you, and the percent appears beside the box. Anything above 100 is kept rather than " +
+      "clipped, so extra credit such as <code>26/25</code> counts properly. A line that cannot be read shows a " +
+      "question mark and is left out of the math instead of being guessed at.</p>" +
+      '<p class="eyebrow" style="margin-top:14px">Categories with many pieces</p>' +
+      '<p style="font-size:13.5px;color:var(--ink2);margin:0 0 6px">When a line covers several graded pieces, ' +
+      "such as ten labs or fourteen discussion posts, open it and enter each one. The category score is the " +
+      "average of what you have entered, with the syllabus drop rule applied, and only the portion you have " +
+      "actually completed counts as graded. Four labs of ten done means four ninths of that category is marked, " +
+      "not all of it. Entering pieces individually overrides any single score put on the category line.</p>" +
+      '<p class="eyebrow" style="margin-top:14px">Extra credit</p>' +
+      '<p style="font-size:13.5px;color:var(--ink2);margin:0 0 6px">Lines the syllabus offers as a bonus are ' +
+      "kept out of the denominator entirely. They add to what you have earned without adding to what you are " +
+      "being measured against, which is what makes a bonus a bonus. Unclaimed extra credit is never assumed, " +
+      "but the runway tells you how much is still on the table and what taking all of it would do.</p>" +
+      '<p class="eyebrow" style="margin-top:14px">How the runway is figured</p>' +
+      '<p style="font-size:13.5px;color:var(--ink2);margin:0">Your current grade is what you have earned ' +
+      "divided by what has actually been graded, so an early quiz does not get treated as though it were the " +
+      "whole course. The needed average is the score you would have to average across every remaining point to " +
+      "land on your target. If it comes back over 100 the target is already out of reach on the math alone, and " +
+      "if it comes back at or below zero the target is locked in no matter what happens next.</p>";
+    host.appendChild(note);
+  }
+
+  function gradeCard(idx) {
+    var c = courses[idx];
+    var card = document.createElement("div");
+    card.className = "card card-pad gcard";
+
+    var baseW = baseWeightTotal(c);
+    var ecW = ecWeightTotal(c);
+    var i;
+
+    var head = document.createElement("div");
+    head.className = "head";
+    head.innerHTML = '<span class="dotc" style="background:' + colorFor(idx) + ';width:13px;height:13px"></span>' +
+      "<h2 style=\"flex:1 1 auto;min-width:0\">" + esc(c.name) + "</h2>" +
+      (ecW > 0 ? '<span class="tag ec">+' + r1(ecW) + "% extra credit</span>" : "") +
+      '<span class="tag">target ' + r1(c.target) + "%</span>";
+    card.appendChild(head);
+
+    if (!c.scheme.length) {
+      var no = document.createElement("p");
+      no.className = "muted";
+      no.style.fontSize = "13.5px";
+      no.style.margin = "0";
+      no.textContent = "No grading breakdown came back for this course, so there is nothing to weigh. " +
+        "The schedule and policies are still on the other tabs.";
+      card.appendChild(no);
+      return card;
+    }
+
+    var bar = document.createElement("div");
+    bar.className = "wbar";
+    for (i = 0; i < c.scheme.length; i++) {
+      if (c.scheme[i].extraCredit) { continue; }
+      var seg = document.createElement("div");
+      seg.style.flex = String(c.scheme[i].weight);
+      seg.style.background = COURSE_COLORS[i % COURSE_COLORS.length];
+      seg.style.opacity = String(1 - (i % 3) * 0.16);
+      seg.title = c.scheme[i].item + " \u2014 " + r1(c.scheme[i].weight) + "%";
+      bar.appendChild(seg);
+    }
+    card.appendChild(bar);
+
+    if (Math.abs(baseW - 100) > 1) {
+      var warn = document.createElement("div");
+      warn.className = "notice";
+      warn.style.marginTop = "10px";
+      warn.innerHTML = '<span class="n-msg">The graded weights add up to <b>' + r1(baseW) +
+        "%</b>, not 100%" + (ecW > 0 ? " (extra credit is counted separately and is not part of this)" : "") +
+        ". Either the syllabus has a gap in it or something was missed in the extraction. " +
+        "The math below still works against " + r1(baseW) + "%, but check the table against the document.</span>";
+      card.appendChild(warn);
+    }
+
+    var list = document.createElement("div");
+    list.className = "wlist";
+    card.appendChild(list);
+
+    var runway = document.createElement("div");
+    runway.className = "runway";
+    runway.setAttribute("data-runway", "1");
+    card.appendChild(runway);
+
+    /* Each row registers a repaint closure. A change anywhere refreshes every readout and the
+       runway together, without touching input values, so focus and the caret survive typing. */
+    var painters = [];
+    function refresh() {
+      var res = computeCourse(c);
+      var j;
+      for (j = 0; j < painters.length; j++) { painters[j](res); }
+      paintRunway(runway, c, res);
+    }
+
+    for (i = 0; i < c.scheme.length; i++) { buildSchemeRow(c, idx, i, list, painters, refresh, card); }
+    refresh();
+    return card;
+  }
+
+  function buildSchemeRow(c, idx, si, list, painters, refresh, card) {
+    var s = c.scheme[si];
+    var key = scoreKey(c.id, si);
+    var many = (s.count > 1);
+
+    var row = document.createElement("div");
+    row.className = "wrow" + (s.extraCredit ? " ec" : "");
+
+    var nm = document.createElement("div");
+    nm.className = "nm";
+    var nmh = '<i class="sw" style="background:' +
+      (s.extraCredit ? "var(--busy)" : COURSE_COLORS[si % COURSE_COLORS.length]) +
+      ';opacity:' + (s.extraCredit ? 1 : (1 - (si % 3) * 0.16)) + '"></i><span>' + esc(s.item) +
+      (has(s.note) ? ' <span class="muted">(' + esc(s.note) + ")</span>" : "") + "</span>";
+    nm.innerHTML = nmh;
+    row.appendChild(nm);
+
+    var wt = document.createElement("div");
+    wt.className = "wt" + (s.extraCredit ? " ec" : "");
+    wt.textContent = (s.extraCredit ? "+" : "") + r1(s.weight) + "%";
+    wt.title = s.extraCredit
+      ? "Bonus. Adds up to " + r1(s.weight) + " points on top of the graded total."
+      : r1(s.weight) + " percent of the final grade.";
+    row.appendChild(wt);
+
+    /* ----- report mode: static, no controls ----- */
+    if (reportMode) {
+      var st0 = categoryStanding(c, si);
+      var stat = document.createElement("div");
+      stat.className = "scorestatic";
+      if (st0.mode === "items") { stat.textContent = st0.entered + " of " + st0.n; }
+      else if (st0.mode === "category") { stat.textContent = String(scores[key]); }
+      else { stat.textContent = "\u2014"; }
+      row.appendChild(stat);
+      var cv = document.createElement("div");
+      cv.className = "conv";
+      cv.textContent = st0.pct === null ? "" : r1(st0.pct) + "%";
+      row.appendChild(cv);
+      list.appendChild(row);
+      if (st0.mode === "items") {
+        var det = document.createElement("div");
+        det.className = "substatic";
+        det.textContent = subSummaryText(c, si, st0) + "  \u00b7  " + enteredListText(c, si);
+        list.appendChild(det);
+      }
+      return;
+    }
+
+    /* ----- category-level input ----- */
+    var inp = document.createElement("input");
+    inp.type = "text";
+    inp.inputMode = "text";
+    inp.placeholder = many ? "whole category" : "88 or 22/25";
+    inp.value = Object.prototype.hasOwnProperty.call(scores, key) ? scores[key] : "";
+    inp.setAttribute("aria-label",
+      "Your score on " + s.item + ", as a percent or as points over the total");
+    row.appendChild(inp);
+
+    var conv = document.createElement("div");
+    conv.className = "conv";
+    row.appendChild(conv);
+
+    var toggle = null, subs = null, subSummary = null;
+    if (many) {
+      toggle = document.createElement("button");
+      toggle.className = "expand";
+      toggle.type = "button";
+      toggle.setAttribute("aria-expanded", "false");
+      toggle.textContent = s.count + " pieces";
+      toggle.title = "Enter each of the " + s.count + " individually";
+      row.appendChild(toggle);
+    }
+    list.appendChild(row);
+
+    if (many) {
+      subs = document.createElement("div");
+      subs.className = "subs hidden";
+
+      subSummary = document.createElement("div");
+      subSummary.className = "subsum";
+      subs.appendChild(subSummary);
+
+      var grid = document.createElement("div");
+      grid.className = "subgrid";
+      var k;
+      for (k = 0; k < s.count; k++) {
+        (function (kk) {
+          var cell = document.createElement("label");
+          cell.className = "subcell";
+          var lab = document.createElement("span");
+          lab.className = "sublab";
+          lab.textContent = String(kk + 1);
+          var si2 = document.createElement("input");
+          si2.type = "text";
+          si2.inputMode = "text";
+          si2.placeholder = "\u2014";
+          si2.value = scores[subKey(c.id, si, kk)] || "";
+          si2.setAttribute("aria-label", s.item + " number " + (kk + 1));
+          si2.addEventListener("input", function () {
+            var v = si2.value.trim();
+            if (v === "") { delete scores[subKey(c.id, si, kk)]; }
+            else { scores[subKey(c.id, si, kk)] = v; }
+            persist();
+            refresh();
+          });
+          cell.appendChild(lab);
+          cell.appendChild(si2);
+          grid.appendChild(cell);
+        })(k);
+      }
+      subs.appendChild(grid);
+
+      var clearBtn = document.createElement("button");
+      clearBtn.className = "btn btn-sm";
+      clearBtn.type = "button";
+      clearBtn.textContent = "Clear these";
+      clearBtn.addEventListener("click", function () {
+        var kk;
+        for (kk = 0; kk < s.count; kk++) { delete scores[subKey(c.id, si, kk)]; }
+        persist();
+        var boxes = grid.querySelectorAll("input"), q;
+        for (q = 0; q < boxes.length; q++) { boxes[q].value = ""; }
+        refresh();
+      });
+      subs.appendChild(clearBtn);
+      list.appendChild(subs);
+
+      toggle.addEventListener("click", function () {
+        var open = subs.classList.contains("hidden");
+        if (open) { subs.classList.remove("hidden"); } else { subs.classList.add("hidden"); }
+        toggle.setAttribute("aria-expanded", open ? "true" : "false");
+        toggle.className = open ? "expand on" : "expand";
+      });
+    }
+
+    inp.addEventListener("input", function () {
+      var v = inp.value.trim();
+      if (v === "") { delete scores[key]; } else { scores[key] = v; }
+      persist();
+      refresh();
+    });
+
+    painters.push(function (res) {
+      var st = res.standings[si];
+      var itemMode = (st.mode === "items");
+
+      inp.disabled = itemMode;
+      inp.className = "";
+      inp.removeAttribute("aria-invalid");
+
+      if (itemMode) {
+        conv.className = "conv calc";
+        conv.textContent = r1(st.pct) + "%";
+        conv.title = "Computed from the individual pieces.";
+        inp.placeholder = "from pieces";
+        if (inp.value.trim()) {
+          inp.className = "superseded";
+          inp.title = "The individual pieces are being used instead. Clear them to go back to this figure.";
+        } else {
+          inp.title = "";
+        }
+      } else {
+        inp.title = "";
+        inp.placeholder = many ? "whole category" : "88 or 22/25";
+        var v = inp.value.trim();
+        if (!v) {
+          conv.className = "conv";
+          conv.textContent = "";
+        } else if (st.pct === null) {
+          conv.className = "conv bad";
+          conv.textContent = "?";
+          conv.title = "That entry could not be read. Use a percent like 88, or points like 22/25.";
+          inp.className = "bad";
+          inp.setAttribute("aria-invalid", "true");
+        } else {
+          conv.className = "conv" + (isFraction(v) ? " calc" : "");
+          conv.textContent = r1(st.pct) + "%";
+          conv.title = isFraction(v) ? "Points read as " + r1(st.pct) + " percent." : "";
+        }
+      }
+
+      if (toggle) {
+        toggle.textContent = itemMode ? (st.entered + " of " + st.n) : (st.n + " pieces");
+        toggle.className = (toggle.getAttribute("aria-expanded") === "true" ? "expand on" : "expand") +
+          (itemMode ? " filled" : "");
+      }
+      if (subSummary) { subSummary.innerHTML = subSummaryHtml(c, si, st); }
+    });
+  }
+
+  function subSummaryText(c, si, st) {
+    var s = c.scheme[si];
+    if (st.mode !== "items") {
+      return "None of the " + st.n + " entered yet" +
+        (st.drop > 0 ? ", lowest " + st.drop + " will be dropped" : "") + ".";
+    }
+    var bits = [st.entered + " of " + st.n + " entered"];
+    if (st.dropsApplied > 0) {
+      bits.push("lowest " + st.dropsApplied + " dropped (" +
+        st.dropped.map(function (d) { return r1(d) + "%"; }).join(", ") + ")");
+    } else if (st.drop > 0) {
+      bits.push("lowest " + st.drop + " will drop once there is more to drop");
+    }
+    bits.push("average of the " + st.kept + " kept is " + r1(st.pct) + "%");
+    bits.push(r1(st.fraction * 100) + "% of this category is marked");
+    return bits.join(" \u00b7 ");
+  }
+  function subSummaryHtml(c, si, st) { return esc(subSummaryText(c, si, st)); }
+
+  function enteredListText(c, si) {
+    var s = c.scheme[si], out = [], k, v;
+    for (k = 0; k < s.count; k++) {
+      v = scores[subKey(c.id, si, k)];
+      if (v) { out.push((k + 1) + ": " + v); }
+    }
+    return out.join(", ");
+  }
+
+  function recalcCourse(idx, card) {
+    var r = card.querySelector("[data-runway]");
+    if (r) { paintRunway(r, courses[idx], computeCourse(courses[idx])); }
+  }
+
+  function paintRunway(host, c, res) {
+    clear(host);
+    var scale = res.scale;
+    var earnedTotal = res.earnedBase + res.earnedEC;
+    var open = res.open;
+
+    if (res.gradedBaseW <= 0 && res.earnedEC <= 0) {
+      host.innerHTML = '<p class="eyebrow">Runway</p>' +
+        '<p style="font-size:13.5px;color:var(--ink2);margin:0">Nothing is graded yet. Enter a score above as ' +
+        "each piece comes back and this fills in with where you stand and what the remaining work has to " +
+        "carry.</p>" +
+        (res.ecAvailable > 0 ? '<p style="font-size:13px;color:var(--ink3);margin:8px 0 0">This course offers ' +
+          "up to " + r1(res.ecAvailable) + "% of extra credit on top of the graded total.</p>" : "");
+      return;
+    }
+
+    var cur = res.gradedBaseW > 0 ? (earnedTotal / res.gradedBaseW) * 100 : null;
+    var needed = open > 0 ? ((c.target - (earnedTotal / scale) * 100) / (open / scale)) : null;
+
+    var html = '<p class="eyebrow">Runway</p>' +
+      '<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">' +
+      '<span class="big-grade">' + (cur === null ? "\u2014" : r1(cur) + "%") + "</span>" +
+      '<span class="muted" style="font-size:13px">on the ' + r1(res.gradedBaseW) +
+      "% of the grade that has been marked" +
+      (res.earnedEC > 0 ? ", with " + r1(res.earnedEC) + "% of extra credit folded in" : "") + "</span></div>";
+
+    html += '<div class="rail3">' +
+      '<div class="e" style="flex:' + Math.max(0.001, res.earnedBase) + '"></div>' +
+      (res.earnedEC > 0 ? '<div class="x" style="flex:' + res.earnedEC + '"></div>' : "") +
+      '<div class="l" style="flex:' + Math.max(0.001, res.lost) + '"></div>' +
+      '<div class="o" style="flex:' + Math.max(0.001, open) + '"></div></div>';
+
+    html += '<div class="rlegend">' +
+      '<span><i class="sw" style="background:var(--steady)"></i>' + r1(res.earnedBase) + " points earned</span>" +
+      (res.earnedEC > 0 ? '<span><i class="sw" style="background:var(--busy)"></i>' + r1(res.earnedEC) +
+        " extra credit</span>" : "") +
+      '<span><i class="sw" style="background:var(--crunch)"></i>' + r1(res.lost) + " points lost</span>" +
+      '<span><i class="sw" style="background:var(--clear)"></i>' + r1(open) + " points still open</span></div>";
+
+    var vt;
+    if (open <= 0) {
+      vt = "Everything is graded. The course lands at <b>" + r1((earnedTotal / scale) * 100) + "%</b>" +
+        (res.earnedEC > 0 ? ", extra credit included" : "") + ".";
+    } else if (needed === null) {
+      vt = "";
+    } else if (needed > 100) {
+      vt = "A " + r1(c.target) + "% is out of reach on the math: you would need <b>" + r1(needed) +
+        "%</b> across the remaining " + r1(open) + "% of the grade. The highest this course can still finish " +
+        "is <b>" + r1(((earnedTotal + open + res.ecOpen) / scale) * 100) + "%</b>" +
+        (res.ecOpen > 0 ? ", and that already assumes every remaining point of extra credit" : "") + ".";
+    } else if (needed <= 0) {
+      vt = "The " + r1(c.target) + "% is already locked in. Even a zero on everything left finishes at <b>" +
+        r1((earnedTotal / scale) * 100) + "%</b>.";
+    } else {
+      vt = "To land a " + r1(c.target) + "% you need to average <b>" + r1(needed) + "%</b> across the remaining " +
+        r1(open) + "% of the grade.";
+    }
+    html += '<div class="verdict">' + vt + "</div>";
+
+    if (res.ecOpen > 0 && needed !== null && needed > 0) {
+      var withEC = ((c.target - ((earnedTotal + res.ecOpen) / scale) * 100) / (open / scale));
+      var ecLine;
+      if (withEC <= 0) {
+        ecLine = "There is still <b>" + r1(res.ecOpen) + "%</b> of extra credit on the table. Claiming all of " +
+          "it would put the " + r1(c.target) + "% within reach on the remaining work alone.";
+      } else {
+        ecLine = "There is still <b>" + r1(res.ecOpen) + "%</b> of extra credit on the table. Claiming all of " +
+          "it would bring the average you need down to <b>" + r1(withEC) + "%</b>. It is not assumed here, " +
+          "because unclaimed bonus points are not points.";
+      }
+      html += '<div class="verdict ecline">' + ecLine + "</div>";
+    }
+
+    host.innerHTML = html;
+  }
+
+  /* ---------- policies tab ---------- */
+  var POL_LABELS = [
+    ["ai", "AI and generative tools"],
+    ["attendance", "Attendance"],
+    ["lateWork", "Late work"],
+    ["integrity", "Academic integrity"],
+    ["communication", "Communication"]
+  ];
+
+  function renderPolicies(host) {
+    var i;
+    for (i = 0; i < courses.length; i++) {
+      var c = courses[i];
+      var card = document.createElement("div");
+      card.className = "card card-pad gcard";
+      var h = '<div class="head"><span class="dotc" style="background:' + colorFor(i) +
+        ';width:13px;height:13px"></span><h2 style="flex:1 1 auto;min-width:0">' + esc(c.name) + "</h2></div>";
+
+      var meta = [];
+      if (has(c.term)) { meta.push(c.term); }
+      if (has(c.credits)) { meta.push(c.credits + " credits"); }
+      if (has(c.instructor.name)) { meta.push(c.instructor.name); }
+      if (has(c.instructor.email)) { meta.push(c.instructor.email); }
+      if (meta.length) {
+        h += '<p class="muted" style="font-size:12.5px;margin:-4px 0 10px">' + esc(meta.join("  \u00b7  ")) + "</p>";
+      }
+      if (has(c.instructor.officeHours)) {
+        h += '<div class="pol"><div class="k">Office hours</div><div class="v">' + esc(c.instructor.officeHours) + "</div></div>";
+      }
+
+      var j, any = false;
+      for (j = 0; j < POL_LABELS.length; j++) {
+        var val = c.policies[POL_LABELS[j][0]];
+        if (!has(val)) { continue; }
+        any = true;
+        h += '<div class="pol"><div class="k">' + esc(POL_LABELS[j][1]) + '</div><div class="v">' + esc(val) + "</div></div>";
+      }
+      if (!any && !has(c.instructor.officeHours)) {
+        h += '<p class="muted" style="font-size:13.5px;margin:0">No policy language came back for this course.</p>';
+      }
+      if (c.watch.length) {
+        h += '<div class="pol"><div class="k">Easy to miss</div><ul class="watch">';
+        for (j = 0; j < c.watch.length; j++) { h += "<li>" + esc(c.watch[j]) + "</li>"; }
+        h += "</ul></div>";
+      }
+      card.innerHTML = h;
+      host.appendChild(card);
+    }
+
+  }
+
+  function copySummary(btn) {
+    var f = buildForecast();
+    var term = load(K_SESSION, "").trim();
+    var L = [];
+    L.push("SEMESTER FORECAST" + (term ? " \u2014 " + term : ""));
+    L.push("Built with AppADay 092: https://augustineiacopelli.github.io/appaday/");
+    L.push("");
+    var i, j;
+    for (i = 0; i < courses.length; i++) {
+      L.push(courses[i].name + (courses[i].scheme.length ? "  (target " + r1(courses[i].target) + "%)" : ""));
+    }
+    L.push("");
+    if (f.weeks.length) {
+      L.push("WEEK BY WEEK");
+      for (i = 0; i < f.weeks.length; i++) {
+        var wk = f.weeks[i];
+        L.push("  Week " + wk.idx + "  " + shortDate(wk.week) + "  " + wk.band.label + "  ~" +
+          Math.round(wk.hours) + " h");
+        for (j = 0; j < wk.entries.length; j++) {
+          L.push("      " + (wk.entries[j].iso ? shortDate(wk.entries[j].iso) : "  --  ") + "  " +
+            wk.entries[j].it.label + "  [" + courses[wk.entries[j].ci].name + "]");
+        }
+      }
+      L.push("");
+    }
+    for (i = 0; i < courses.length; i++) {
+      var c = courses[i];
+      L.push("POLICIES \u2014 " + c.name);
+      for (j = 0; j < POL_LABELS.length; j++) {
+        if (has(c.policies[POL_LABELS[j][0]])) {
+          L.push("  " + POL_LABELS[j][1] + ": " + c.policies[POL_LABELS[j][0]]);
+        }
+      }
+      for (j = 0; j < c.watch.length; j++) { L.push("  Watch: " + c.watch[j]); }
+      L.push("");
+    }
+    var text = L.join("\n");
+    function done(ok) {
+      btn.textContent = ok ? "Copied" : "Copy failed";
+      setTimeout(function () { btn.textContent = "Copy summary"; }, 1800);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function () { done(true); }, function () { fallbackCopy(text, done); });
+    } else { fallbackCopy(text, done); }
+  }
+  function fallbackCopy(text, done) {
+    var t = document.createElement("textarea");
+    t.value = text;
+    t.style.position = "fixed";
+    t.style.opacity = "0";
+    document.body.appendChild(t);
+    t.select();
+    var ok = false;
+    try { ok = document.execCommand("copy"); } catch (e) { ok = false; }
+    document.body.removeChild(t);
+    done(ok);
+  }
+
+  /* ---------------- print report ---------------- */
+  /* The screen shows one tab at a time. A report has to show all four, so it is assembled into a
+     separate container that only the print stylesheet reveals. The same render functions are
+     reused so the paper and the screen can never drift apart. */
+  function buildReport() {
+    var host = $("report");
+    clear(host);
+
+    var savedFilter = typeFilter, savedWeek = pickedWeek;
+    reportMode = true;
+    typeFilter = "all";
+    pickedWeek = null;
+
+    var term = load(K_SESSION, "").trim();
+    var now = new Date();
+    var stamp = MON[now.getMonth()] + " " + now.getDate() + ", " + now.getFullYear();
+
+    var head = document.createElement("div");
+    head.className = "rep-head";
+    head.innerHTML = '<div class="rep-title">Semester Forecast</div><div class="rep-meta">' +
+      (term ? esc(term) + " \u00b7 " : "") + courses.length +
+      (courses.length === 1 ? " course" : " courses") + " \u00b7 prepared " + esc(stamp) + "</div>";
+    host.appendChild(head);
+
+    var sections = [
+      ["The term at a glance", renderForecast],
+      ["Every deliverable", renderWork],
+      ["Grades and runway", renderGrades],
+      ["Policies and fine print", renderPolicies]
+    ];
+    var i;
+    for (i = 0; i < sections.length; i++) {
+      var sec = document.createElement("div");
+      sec.className = "rep-sec";
+      var h = document.createElement("h2");
+      h.textContent = sections[i][0];
+      sec.appendChild(h);
+      try { sections[i][1](sec); } catch (e) { /* one bad section must not lose the report */ }
+      host.appendChild(sec);
+    }
+
+    var foot = document.createElement("div");
+    foot.className = "rep-foot";
+    foot.textContent = "Hours and difficulty are estimates, not the syllabus speaking. Verify anything that " +
+      "matters against the original document. Built with Semester Forecast, day 092 of AppADay: " +
+      "https://augustineiacopelli.github.io/appaday/";
+    host.appendChild(foot);
+
+    reportMode = false;
+    typeFilter = savedFilter;
+    pickedWeek = savedWeek;
+  }
+
+  $("printbtn").addEventListener("click", function () {
+    if (!courses.length) { showNotice("Add a course first, or load the sample term."); return; }
+    buildReport();
+    setTimeout(function () {
+      try { window.print(); }
+      catch (e) {
+        showNotice("This browser would not open its print dialog. Use the browser menu and choose Print, then " +
+          "pick Save as PDF as the destination.", "error", "Could not open print");
+      }
+    }, 60);
+  });
+
+  $("copybtn").addEventListener("click", function () { copySummary($("copybtn")); });
+
+  /* ---------------- tabs ---------------- */
+  ["forecast", "work", "grades", "policies"].forEach(function (k) {
+    $("tab-" + k).addEventListener("click", function () { tab = k; renderAll(); });
+  });
+
+  /* ---------------- sample ---------------- */
+  function sampleCourses() {
+    return [
+      {
+        course: { title: "Data Foundations", code: "MSBA 601", term: "Fall 2026", credits: "3", startIso: "2026-08-24", endIso: "2026-12-11" },
+        instructor: { name: "Dr. R. Halvorsen", email: "halvorsen@example.edu", officeHours: "Tue and Thu, 1 to 3 pm, Devlin 214, or by appointment." },
+        target: 93,
+        scheme: [
+          { item: "Weekly labs", weight: 25, count: 10, drop: 1, extraCredit: false, note: "10 labs, lowest dropped" },
+          { item: "Midterm exam", weight: 20, count: 1, drop: 0, extraCredit: false, note: "" },
+          { item: "Term project", weight: 30, count: 3, drop: 0, extraCredit: false, note: "proposal, draft, final" },
+          { item: "Final exam", weight: 20, count: 1, drop: 0, extraCredit: false, note: "cumulative" },
+          { item: "Participation", weight: 5, count: 1, drop: 0, extraCredit: false, note: "" },
+          { item: "Research participation", weight: 3, count: 1, drop: 0, extraCredit: true, note: "up to 3% added to the final grade" }
+        ],
+        items: [
+          { label: "Weekly lab", type: "assignment", cadence: "weekly", iso: "", startIso: "2026-08-31", endIso: "2026-11-16", display: "", weight: 25, hours: 3, difficulty: 2, note: "Due Mondays at 11:59 pm." },
+          { label: "Project proposal", type: "project", cadence: "once", iso: "2026-09-21", startIso: "", endIso: "", display: "Sep 21", weight: 5, hours: 4, difficulty: 2, note: "Two pages plus a data source." },
+          { label: "Midterm exam", type: "exam", cadence: "once", iso: "2026-10-08", startIso: "", endIso: "", display: "Oct 8", weight: 20, hours: 9, difficulty: 4, note: "In class, closed notes." },
+          { label: "Fall break", type: "holiday", cadence: "once", iso: "2026-10-19", startIso: "", endIso: "", display: "Oct 19", weight: 0, hours: 0, difficulty: 1, note: "No class Monday or Tuesday." },
+          { label: "Project draft", type: "project", cadence: "once", iso: "2026-11-02", startIso: "", endIso: "", display: "Nov 2", weight: 10, hours: 10, difficulty: 4, note: "" },
+          { label: "Final project and presentation", type: "project", cadence: "once", iso: "2026-12-02", startIso: "", endIso: "", display: "Dec 2", weight: 15, hours: 16, difficulty: 5, note: "Ten minute presentation plus the written report." },
+          { label: "Final exam", type: "exam", cadence: "once", iso: "2026-12-10", startIso: "", endIso: "", display: "Dec 10", weight: 20, hours: 11, difficulty: 5, note: "Cumulative, 8 to 10 am." },
+          { label: "Research participation (extra credit)", type: "other", cadence: "once", iso: "2026-11-13", startIso: "", endIso: "", display: "Nov 13", weight: 3, hours: 3, difficulty: 1, note: "Optional. Up to 3% added to the final grade." }
+        ],
+        policies: {
+          attendance: "More than three unexcused absences drops the participation grade to zero. Six or more drops the course grade one full letter.",
+          ai: "Generative AI may be used for debugging and for explaining concepts, and must be disclosed in a short note at the end of any submission. Using it to write the analysis or the report itself is a violation.",
+          lateWork: "Ten percent per day for three days, then no credit. Labs are the exception: the lowest lab is dropped, so one missed lab costs nothing.",
+          integrity: "University policy applies. Suspected violations go to the Dean of Students without a warning.",
+          communication: "Email is answered within one business day. Nothing is answered after 6 pm or on weekends."
+        },
+        watch: [
+          "The term project is worth 30 percent spread over three deadlines, so falling behind on the proposal compounds twice.",
+          "The final exam and the final project land eight days apart in December.",
+          "Attendance can cost a full letter grade on its own, independent of any score.",
+          "The 3 percent research participation is extra credit on top of the grade, not part of it, and the deadline is easy to miss."
+        ],
+        loadNote: "Light and rhythmic until October, then the project milestones stack on top of the exams."
+      },
+      {
+        course: { title: "Organizational Behavior", code: "MGMT 640", term: "Fall 2026", credits: "3", startIso: "2026-08-24", endIso: "2026-12-11" },
+        instructor: { name: "Prof. A. Nkemelu", email: "nkemelu@example.edu", officeHours: "Wed, 10 am to noon, online." },
+        target: 90,
+        scheme: [
+          { item: "Discussion posts", weight: 20, count: 14, drop: 2, extraCredit: false, note: "best 12 of 14 count" },
+          { item: "Case analyses", weight: 30, count: 3, drop: 0, extraCredit: false, note: "3 cases" },
+          { item: "Team simulation", weight: 25, count: 2, drop: 0, extraCredit: false, note: "charter and debrief" },
+          { item: "Final paper", weight: 25, count: 1, drop: 0, extraCredit: false, note: "" }
+        ],
+        items: [
+          { label: "Discussion post", type: "discussion", cadence: "weekly", iso: "", startIso: "2026-08-26", endIso: "2026-11-25", display: "", weight: 20, hours: 1.5, difficulty: 2, note: "Initial post Wednesday, two replies Friday." },
+          { label: "Case analysis one", type: "assignment", cadence: "once", iso: "2026-09-14", startIso: "", endIso: "", display: "Sep 14", weight: 10, hours: 7, difficulty: 3, note: "" },
+          { label: "Case analysis two", type: "assignment", cadence: "once", iso: "2026-10-12", startIso: "", endIso: "", display: "Oct 12", weight: 10, hours: 7, difficulty: 3, note: "" },
+          { label: "Team simulation kickoff", type: "project", cadence: "once", iso: "2026-10-26", startIso: "", endIso: "", display: "Oct 26", weight: 5, hours: 4, difficulty: 3, note: "Teams assigned, charter due." },
+          { label: "Case analysis three", type: "assignment", cadence: "once", iso: "2026-11-09", startIso: "", endIso: "", display: "Nov 9", weight: 10, hours: 7, difficulty: 4, note: "" },
+          { label: "Team simulation debrief", type: "project", cadence: "once", iso: "2026-11-23", startIso: "", endIso: "", display: "Nov 23", weight: 20, hours: 12, difficulty: 4, note: "Group deck plus individual reflection." },
+          { label: "Withdraw deadline", type: "deadline", cadence: "once", iso: "2026-11-06", startIso: "", endIso: "", display: "Nov 6", weight: 0, hours: 0, difficulty: 1, note: "Last day to withdraw with a W." },
+          { label: "Final paper", type: "assignment", cadence: "once", iso: "2026-12-08", startIso: "", endIso: "", display: "Dec 8", weight: 25, hours: 18, difficulty: 5, note: "Fifteen pages, APA." }
+        ],
+        policies: {
+          attendance: "This section is asynchronous. Attendance is measured by on time discussion posts.",
+          ai: "Generative AI is prohibited on the final paper and on all three case analyses. It is permitted for brainstorming on discussion posts if the post says so.",
+          lateWork: "No late work is accepted on any graded item. There are no exceptions and no drops.",
+          integrity: "Turnitin runs on every submission. A similarity score over 25 percent triggers a conversation.",
+          communication: "Use the course inbox, not personal email. Expect a reply within 48 hours."
+        },
+        watch: [
+          "No late work is accepted anywhere in this course, and nothing is dropped.",
+          "The final paper is 25 percent of the grade and lands two days before the other course's final exam.",
+          "The withdraw deadline falls before the third case analysis is graded, so you will be deciding without that data point."
+        ],
+        loadNote: "A steady weekly hum from discussion posts, with three sharp spikes at the case deadlines and a heavy December."
+      }
+    ];
+  }
+
+  $("sample").addEventListener("click", function () {
+    var s = sampleCourses(), i;
+    for (i = 0; i < s.length; i++) { courses.push(normalize(s[i])); }
+    persist();
+    pickedWeek = null;
+    tab = "forecast";
+    renderAll();
+    showNotice("Loaded a two course sample term. It behaves exactly like a real one, so scores and filters all work.", "info");
+    $("railsec").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  /* ---------------- boot ---------------- */
+  (function boot() {
+    var i;
+    for (i = 0; i < courses.length; i++) { courses[i] = rehydrate(courses[i]); }
+    updateCounter();
+    markGear();
+    if (courses.length) { renderAll(); }
+    if (!hasKey()) {
+      showNotice("Add your Anthropic API key in Settings (the gear, top right) to read a real syllabus, or press " +
+        "Load sample term to see the forecast right now.", "info");
+    } else if (!storageOK) {
+      showNotice("This browser is not letting the page save anything, so your key and your courses will be " +
+        "forgotten when the tab closes. Everything still works for this session.", "info", "Nothing will persist");
+    }
+  })();
+
+})();
+</script>
+</body>
+</html>
