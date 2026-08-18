@@ -238,6 +238,33 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .diff{display:inline-flex;gap:2px;align-items:center}
 .diff i{width:5px;height:5px;border-radius:50%;background:var(--rule2);display:block}
 .diff i.on{background:var(--ink2)}
+.row-edit{
+  flex:0 0 auto;align-self:center;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
+  border:1px solid var(--rule2);background:var(--card);border-radius:999px;
+  padding:5px 11px;color:var(--ink3);white-space:nowrap;
+}
+.row-edit:hover{border-color:var(--accent);color:var(--accent)}
+.row-edit.resolve{border-color:var(--busy);color:#8f6111;background:var(--busy-soft);font-weight:600}
+.row-edit.resolve:hover{border-color:var(--crunch);color:var(--crunch)}
+.row.edited{position:relative}
+.row.edited .body .t::after{
+  content:"edited";margin-left:8px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);border:1px solid var(--accent-soft);
+  background:var(--accent-soft);border-radius:4px;padding:1px 5px;vertical-align:middle;
+}
+.modal.wide{max-width:560px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.frow3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.field select{
+  width:100%;padding:9px 11px;border:1px solid var(--rule2);border-radius:9px;
+  background:var(--card2);font-size:14px;
+}
+.btn.danger{border-color:var(--crunch);color:var(--crunch)}
+.btn.danger:hover{background:var(--crunch-soft);border-color:var(--crunch);color:var(--crunch)}
+@media (max-width:520px){
+  .frow,.frow3{grid-template-columns:1fr}
+  .row-edit{padding:5px 9px}
+}
 .filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
 .fbtn{border:1px solid var(--rule2);background:var(--card);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
 .fbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -467,6 +494,101 @@ footer a{color:var(--ink2)}
 
 </main>
 
+<div class="overlay hidden" id="itemedit">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="ietitle">
+    <h2 id="ietitle">Edit item</h2>
+    <p id="iesub">Correct anything the extraction got wrong. Changes stay on this device.</p>
+
+    <div class="field">
+      <label for="ie-label">What it is</label>
+      <input id="ie-label" type="text" placeholder="Midterm exam" autocomplete="off">
+    </div>
+
+    <div class="frow">
+      <div class="field">
+        <label for="ie-type">Type</label>
+        <select id="ie-type">
+          <option value="exam">Exam</option>
+          <option value="quiz">Quiz</option>
+          <option value="assignment">Assignment</option>
+          <option value="project">Project</option>
+          <option value="reading">Reading</option>
+          <option value="discussion">Discussion</option>
+          <option value="deadline">Deadline</option>
+          <option value="holiday">Holiday or break</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="ie-cadence">How often</label>
+        <select id="ie-cadence">
+          <option value="once">Once</option>
+          <option value="weekly">Weekly</option>
+          <option value="biweekly">Every two weeks</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field" id="ie-oncewrap">
+      <label for="ie-iso">Date</label>
+      <input id="ie-iso" type="date">
+      <div class="hint">Leave empty to keep it off the calendar. An item with no date still counts toward the grade.</div>
+    </div>
+
+    <div class="frow hidden" id="ie-runwrap">
+      <div class="field">
+        <label for="ie-start">First one</label>
+        <input id="ie-start" type="date">
+      </div>
+      <div class="field">
+        <label for="ie-end">Last one</label>
+        <input id="ie-end" type="date">
+      </div>
+    </div>
+
+    <div class="field" id="ie-dispwrap">
+      <label for="ie-display">If there is no date, what the syllabus said</label>
+      <input id="ie-display" type="text" placeholder="Week 4" autocomplete="off">
+    </div>
+
+    <div class="frow3">
+      <div class="field">
+        <label for="ie-weight">Percent of grade</label>
+        <input id="ie-weight" type="text" inputmode="decimal" placeholder="20" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ie-hours">Hours each</label>
+        <input id="ie-hours" type="text" inputmode="decimal" placeholder="6" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="ie-diff">Difficulty</label>
+        <select id="ie-diff">
+          <option value="1">1 &middot; busywork</option>
+          <option value="2">2 &middot; light</option>
+          <option value="3">3 &middot; moderate</option>
+          <option value="4">4 &middot; demanding</option>
+          <option value="5">5 &middot; hardest</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint" id="ie-hint"></div>
+
+    <div class="field" style="margin-top:14px">
+      <label for="ie-note">Note</label>
+      <input id="ie-note" type="text" placeholder="Anything worth remembering" autocomplete="off">
+    </div>
+
+    <div class="notice hidden" id="ie-err"></div>
+
+    <div class="modal-actions">
+      <button class="btn danger" id="ie-delete" type="button">Delete</button>
+      <span style="flex:1 1 auto"></span>
+      <button class="btn" id="ie-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="ie-save" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   Day 092 of <a href="https://augustineiacopelli.github.io/appaday/">AppADay</a> by Augustine Iacopelli.
   <br>Syllabus text goes straight from your browser to the Anthropic API. Nothing is stored on a server.
@@ -683,7 +805,8 @@ footer a{color:var(--ink2)}
           endIso: typeof it.endIso === "string" ? it.endIso : "",
           display: typeof it.display === "string" ? it.display : "",
           weight: r1(ww), hours: r1(hh), difficulty: dd,
-          note: typeof it.note === "string" ? it.note : ""
+          note: typeof it.note === "string" ? it.note : "",
+          edited: it.edited === true
         });
       }
     }
@@ -862,6 +985,7 @@ footer a{color:var(--ink2)}
     if (e.key !== "Escape") { return; }
     if (!overlay.classList.contains("hidden")) { closeSettings(); }
     if (!$("confirm").classList.contains("hidden")) { closeConfirm(); }
+    if (!$("itemedit").classList.contains("hidden")) { closeItemEditor(); }
   });
 
   var testBtn = $("test"), testOut = $("testresult");
@@ -1266,7 +1390,8 @@ footer a{color:var(--ink2)}
         endIso: parseIso(it.endIso) ? String(it.endIso).slice(0, 10) : "",
         display: String(it.display || "").slice(0, 40),
         weight: r1(wt), hours: r1(hrs), difficulty: df,
-        note: String(it.note || "").slice(0, 160)
+        note: String(it.note || "").slice(0, 160),
+        edited: false
       });
     }
 
@@ -1348,7 +1473,7 @@ footer a{color:var(--ink2)}
         var it = c.items[ii];
         var occ = occurrences(it);
         if (!occ.length) {
-          undated.push({ ci: ci, it: it });
+          undated.push({ ci: ci, ii: ii, it: it });
           continue;
         }
         var wPer = it.weight / occ.length;
@@ -1360,7 +1485,7 @@ footer a{color:var(--ink2)}
           map[wk].total += pt;
           map[wk].hours += it.hours;
           map[wk].byCourse[ci] = (map[wk].byCourse[ci] || 0) + pt;
-          map[wk].entries.push({ ci: ci, it: it, iso: occ[oi], weightPer: r1(wPer), pts: pt });
+          map[wk].entries.push({ ci: ci, ii: ii, it: it, iso: occ[oi], weightPer: r1(wPer), pts: pt });
         }
       }
     }
@@ -1741,7 +1866,10 @@ footer a{color:var(--ink2)}
       var ul = document.createElement("div");
       var q;
       for (q = 0; q < f.undated.length; q++) {
-        ul.appendChild(itemRow({ ci: f.undated[q].ci, it: f.undated[q].it, iso: "", weightPer: f.undated[q].it.weight }));
+        ul.appendChild(itemRow({
+          ci: f.undated[q].ci, ii: f.undated[q].ii, it: f.undated[q].it,
+          iso: "", weightPer: f.undated[q].it.weight
+        }));
       }
       u.appendChild(ul);
       host.appendChild(u);
@@ -1828,6 +1956,26 @@ footer a{color:var(--ink2)}
       body.appendChild(n);
     }
     row.appendChild(body);
+
+    if (it.edited) { row.className = "row edited"; }
+
+    /* Extraction is a good first pass, not a source of truth. Every row can be corrected by
+       hand, and an item the syllabus dated only as "Week 4" gets the stronger label, because
+       putting it on the calendar is the thing that actually unlocks the forecast. */
+    if (!reportMode && entry.ii !== undefined) {
+      var unresolved = !entry.iso;
+      var eb = document.createElement("button");
+      eb.className = "row-edit" + (unresolved ? " resolve" : "");
+      eb.type = "button";
+      eb.textContent = unresolved ? "Resolve" : "Edit";
+      eb.title = unresolved
+        ? "Give this a date so it lands on the forecast"
+        : "Correct anything the extraction got wrong";
+      eb.setAttribute("aria-label",
+        (unresolved ? "Resolve the date for " : "Edit ") + it.label + " in " + c.name);
+      eb.addEventListener("click", function () { openItemEditor(entry.ci, entry.ii); });
+      row.appendChild(eb);
+    }
     return row;
   }
 
@@ -1866,6 +2014,25 @@ footer a{color:var(--ink2)}
     }
     card.appendChild(fl);
 
+    if (!reportMode) {
+      var addWrap = document.createElement("div");
+      addWrap.className = "filters";
+      addWrap.style.marginTop = "2px";
+      var ac;
+      for (ac = 0; ac < courses.length; ac++) {
+        (function (cix) {
+          var ab = document.createElement("button");
+          ab.className = "btn btn-sm";
+          ab.type = "button";
+          ab.textContent = "+ Add to " + courses[cix].name;
+          ab.title = "Add something the extraction missed";
+          ab.addEventListener("click", function () { openItemEditor(cix, -1); });
+          addWrap.appendChild(ab);
+        })(ac);
+      }
+      card.appendChild(addWrap);
+    }
+
     var shown = 0;
     var body = document.createElement("div");
     for (i = 0; i < f.weeks.length; i++) {
@@ -1885,7 +2052,10 @@ footer a{color:var(--ink2)}
     }
     var uk = [];
     for (i = 0; i < f.undated.length; i++) {
-      var e = { ci: f.undated[i].ci, it: f.undated[i].it, iso: "", weightPer: f.undated[i].it.weight };
+      var e = {
+        ci: f.undated[i].ci, ii: f.undated[i].ii, it: f.undated[i].it,
+        iso: "", weightPer: f.undated[i].it.weight
+      };
       if (passFilter(e)) { uk.push(e); }
     }
     if (uk.length) {
@@ -2608,6 +2778,190 @@ footer a{color:var(--ink2)}
   });
 
   $("copybtn").addEventListener("click", function () { copySummary($("copybtn")); });
+
+  /* ---------------- item editor ---------------- */
+  /* The extraction is a first pass. Anything it got wrong, missed the date on, or invented
+     outright can be corrected here, and a corrected item is flagged so you can tell your own
+     judgment apart from the model's later on. */
+  var editing = null;
+
+  function blankItem() {
+    return {
+      label: "", type: "assignment", cadence: "once", iso: "", startIso: "", endIso: "",
+      display: "", weight: 0, hours: 2, difficulty: 2, note: "", edited: true
+    };
+  }
+
+  function openItemEditor(ci, ii) {
+    var c = courses[ci];
+    if (!c) { return; }
+    var isNew = (ii === -1);
+    if (!isNew && !c.items[ii]) { return; }
+    var it = isNew ? blankItem() : c.items[ii];
+    editing = { ci: ci, ii: ii, isNew: isNew };
+
+    if (isNew) {
+      $("ietitle").textContent = "Add an item";
+      $("iesub").textContent = "Something the syllabus has that the extraction missed. It counts toward " +
+        "the forecast and the grade exactly like an imported one.";
+    } else {
+      $("ietitle").textContent = (it.iso || it.startIso) ? "Edit item" : "Resolve this item";
+      $("iesub").textContent = (it.iso || it.startIso)
+        ? "Correct anything the extraction got wrong. Changes stay on this device."
+        : "This one has no date the calendar could use, so it sits outside the forecast. Give it a " +
+          "date and it joins the week by week shape.";
+    }
+    $("ie-delete").textContent = isNew ? "Discard" : "Delete";
+
+    $("ie-label").value = it.label || "";
+    $("ie-type").value = it.type || "other";
+    $("ie-cadence").value = it.cadence || "once";
+    $("ie-iso").value = it.iso || "";
+    $("ie-start").value = it.startIso || "";
+    $("ie-end").value = it.endIso || "";
+    $("ie-display").value = it.display || "";
+    $("ie-weight").value = it.weight ? String(r1(it.weight)) : "";
+    $("ie-hours").value = (it.hours || it.hours === 0) ? String(r1(it.hours)) : "";
+    $("ie-diff").value = String(it.difficulty || 2);
+    $("ie-note").value = it.note || "";
+
+    hideItemErr();
+    syncCadence();
+    $("itemedit").classList.remove("hidden");
+    setTimeout(function () {
+      var f = (isNew || it.iso || it.startIso) ? $("ie-label") : $("ie-iso");
+      f.focus();
+    }, 40);
+  }
+
+  function closeItemEditor() {
+    $("itemedit").classList.add("hidden");
+    editing = null;
+    hideItemErr();
+  }
+
+  function syncCadence() {
+    var recurring = $("ie-cadence").value !== "once";
+    if (recurring) {
+      $("ie-oncewrap").classList.add("hidden");
+      $("ie-runwrap").classList.remove("hidden");
+      $("ie-dispwrap").classList.add("hidden");
+      $("ie-hint").textContent = "Percent of grade is the total for the whole run, not per occurrence. " +
+        "Hours is what one of them costs you.";
+    } else {
+      $("ie-oncewrap").classList.remove("hidden");
+      $("ie-runwrap").classList.add("hidden");
+      $("ie-dispwrap").classList.remove("hidden");
+      $("ie-hint").textContent = "Hours is your own estimate of the time one of these takes, study included. " +
+        "It is what drives the forecast, so it is worth correcting when it looks wrong.";
+    }
+  }
+  $("ie-cadence").addEventListener("change", syncCadence);
+
+  function showItemErr(msg) {
+    var e = $("ie-err");
+    e.className = "notice";
+    e.innerHTML = '<span class="n-msg">' + esc(msg) + "</span>";
+  }
+  function hideItemErr() {
+    var e = $("ie-err");
+    e.className = "notice hidden";
+    clear(e);
+  }
+
+  function readNum(id, fallback, max) {
+    var raw = $(id).value.trim();
+    if (!raw) { return fallback; }
+    var v = parseFloat(raw.replace(/%/g, ""));
+    if (!isFinite(v) || v < 0) { return null; }
+    if (max !== undefined && v > max) { v = max; }
+    return r1(v);
+  }
+
+  $("ie-save").addEventListener("click", function () {
+    if (!editing) { return; }
+    var c = courses[editing.ci];
+    if (!c) { closeItemEditor(); return; }
+    var it = editing.isNew ? blankItem() : c.items[editing.ii];
+    if (!it) { closeItemEditor(); return; }
+
+    var label = $("ie-label").value.trim();
+    if (!label) { showItemErr("Give it a name first. Everything else is optional."); $("ie-label").focus(); return; }
+
+    var cadence = $("ie-cadence").value;
+    var iso = "", startIso = "", endIso = "";
+
+    if (cadence === "once") {
+      iso = $("ie-iso").value.trim();
+      if (iso && !parseIso(iso)) { showItemErr("That date could not be read. Use the picker or type it as YYYY-MM-DD."); return; }
+    } else {
+      startIso = $("ie-start").value.trim();
+      endIso = $("ie-end").value.trim();
+      if (!startIso || !endIso) {
+        showItemErr("A recurring item needs both a first and a last date, so the app knows how many times it happens.");
+        return;
+      }
+      if (!parseIso(startIso) || !parseIso(endIso)) { showItemErr("One of those dates could not be read."); return; }
+      if (parseIso(endIso).getTime() < parseIso(startIso).getTime()) {
+        showItemErr("The last one falls before the first one. Swap the dates.");
+        return;
+      }
+    }
+
+    var weight = readNum("ie-weight", 0);
+    if (weight === null) { showItemErr("Percent of grade has to be a number, or empty for something ungraded."); return; }
+    var hours = readNum("ie-hours", 0, 60);
+    if (hours === null) { showItemErr("Hours has to be a number, or empty."); return; }
+    var diff = parseInt($("ie-diff").value, 10);
+    if (!isFinite(diff) || diff < 1 || diff > 5) { diff = 2; }
+
+    it.label = label.slice(0, 90);
+    it.type = TYPES[$("ie-type").value] ? $("ie-type").value : "other";
+    it.cadence = cadence;
+    it.iso = iso;
+    it.startIso = startIso;
+    it.endIso = endIso;
+    it.display = cadence === "once" ? $("ie-display").value.trim().slice(0, 40) : "";
+    it.weight = weight;
+    it.hours = hours;
+    it.difficulty = diff;
+    it.note = $("ie-note").value.trim().slice(0, 160);
+    it.edited = true;
+
+    var added = editing.isNew;
+    if (added) {
+      c.items.push(it);
+      c.items.sort(function (x, y) {
+        var a1 = x.iso || x.startIso || "9999";
+        var b1 = y.iso || y.startIso || "9999";
+        return a1 < b1 ? -1 : (a1 > b1 ? 1 : 0);
+      });
+    }
+    persist();
+    closeItemEditor();
+    pickedWeek = null;
+    renderAll();
+    showNotice((added ? "Added " : "Updated ") + it.label + ".", "info");
+  });
+
+  $("ie-delete").addEventListener("click", function () {
+    if (!editing) { return; }
+    if (editing.isNew) { closeItemEditor(); return; }
+    var c = courses[editing.ci];
+    if (!c || !c.items[editing.ii]) { closeItemEditor(); return; }
+    var name = c.items[editing.ii].label;
+    c.items.splice(editing.ii, 1);
+    persist();
+    closeItemEditor();
+    pickedWeek = null;
+    renderAll();
+    showNotice("Removed " + name + " from the forecast.", "info");
+  });
+
+  $("ie-cancel").addEventListener("click", closeItemEditor);
+  $("itemedit").addEventListener("click", function (e) {
+    if (e.target === $("itemedit")) { closeItemEditor(); }
+  });
 
   /* ---------------- tabs ---------------- */
   ["forecast", "work", "grades", "policies"].forEach(function (k) {
