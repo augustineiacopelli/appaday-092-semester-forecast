@@ -51,6 +51,18 @@ Extraction can also miss an item entirely, which no edit button can fix, so the 
 
 The editor is suppressed in report mode, so a printed forecast carries no controls.
 
+## Changing the breakdown
+
+Instructors reweight things mid-term. An exam gets dropped, a project absorbs its percentage, a participation line appears that was never in the syllabus. So the grading table is editable too: every line carries an Edit control, each course has an add control, the target percent is a button, and lines can be deleted outright.
+
+The editor covers what the line is, its percent, how many pieces it holds, how many of the lowest drop, whether it is extra credit, and a note. Every consequence recomputes at once. Reweighting a line moves the graded denominator, the current grade, and the needed average together. Flipping a line into extra credit pulls it out of the base total, the weight bar, and the denominator in the same stroke. When the graded lines stop totalling 100 the card and the course chip both say so and name the new figure, because a breakdown that no longer adds up is usually a sign something was missed rather than something to silently accept.
+
+**Scores are keyed to a line's identity, never its position.** This is the part that had to be right. Entered grades used to hang off the index of their scheme row, which is fine until someone deletes the second of six lines and every score below it silently shifts onto the wrong category. Each line now carries a stable id generated at import, and scores hang off that, so deleting or reordering is safe. Scores saved under the old positional keys are migrated onto the new ones once at load, so nothing entered before this change is lost.
+
+Two edits can strand data, and both are handled explicitly rather than quietly. Deleting a line removes the scores entered on it, since they have nowhere left to live. Shrinking a category below the number of scores already entered discards the ones past the new count, and the confirmation says how many went. In both cases the editor warns you *before* you commit, while backing out is still an option, rather than reporting the loss afterwards.
+
+A course whose syllabus produced no grading table at all is no longer a dead end: it offers the manual path and the same add control, so the breakdown can be built by hand. Edited lines get the same **edited** badge as items, and the whole set of controls is suppressed in report mode.
+
 ## Categories with many pieces
 
 A grading line is often a bucket rather than a single thing: ten labs, fourteen discussion posts, three case analyses. The extraction now pulls a `count` and a `drop` off each line, reading language like "10 labs, lowest dropped", "best 12 of 14 count", or "one post per week" across a fourteen week term. Any line with more than one piece gets an expander, and opening it gives you a box per piece.
@@ -99,7 +111,7 @@ Single file, vanilla HTML, CSS, and JavaScript. No frameworks, no build step, no
 
 The forecast is DOM and CSS rather than canvas. That was a deliberate choice: every week is a real button, so it is tappable, focusable, and screen-reader addressable for free, and it sidesteps the canvas hazards this project has hit before.
 
-Validated headlessly under jsdom across five suites and 297 assertions covering the runway arithmetic at four boundaries (partial, unreachable, locked in, fully graded), the score parser across eleven accepted formats and eight rejected ones, drop-lowest behaviour at partial and full completion, the graded fraction of an incomplete category, extra credit staying out of every denominator it should, the full edit path including validation refusals, date resolution moving an item onto the calendar, add and delete, and cancel leaving no trace, the week bucketing, empty and undated weeks, filters, persistence, course removal, report assembly, and the degradation path when stored data is malformed or corrupt. The parser suite asserts that the same two grades entered as percentages and as points produce byte-identical runway output, which is the property that actually matters.
+Validated headlessly under jsdom across six suites and 382 assertions covering the runway arithmetic at four boundaries (partial, unreachable, locked in, fully graded), the score parser across eleven accepted formats and eight rejected ones, drop-lowest behaviour at partial and full completion, the graded fraction of an incomplete category, extra credit staying out of every denominator it should, the full edit path including validation refusals, date resolution moving an item onto the calendar, add and delete, and cancel leaving no trace, reweighting and deleting grading lines without scores detaching from their category, the migration of legacy positional score keys, the week bucketing, empty and undated weeks, filters, persistence, course removal, report assembly, and the degradation path when stored data is malformed or corrupt. The parser suite asserts that the same two grades entered as percentages and as points produce byte-identical runway output, which is the property that actually matters.
 
 Two real bugs came out of testing rather than review: a null dereference when the first-run panel was re-read after being destroyed, and a crash on malformed stored courses that jsdom was quietly swallowing until the harness was rewired to surface `jsdomError`. Both are fixed, and stored courses are now sanitized on load so a bad record degrades into a thin course instead of blanking the page.
 
