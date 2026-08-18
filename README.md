@@ -37,6 +37,20 @@ Scores go in whichever way the grade actually came back. A plain percent like `8
 
 An entry that cannot be read shows a question mark, turns the field red, and is left out of the math entirely rather than being guessed at or silently coerced to zero. That distinction matters: an unparseable line is not a bad grade, it is an unknown one, so it stays out of both the earned points and the graded weight until it is fixed. What persists is the raw entry as typed, not the converted number, so `45/50` still reads as `45/50` when you come back to it and on the printed report.
 
+## Correcting the import
+
+An extraction is a first pass, not a source of truth. It misreads a table, drops a year off a date, guesses eight hours where the real answer is twenty, or leaves an item dated only as "Week 4". So every item row carries a control on the right that opens an editor for that record: what it is, its type, whether it happens once or on a cycle, its date or date range, its share of the grade, the hours it costs, its difficulty, and a note.
+
+Undated items get the stronger label. The button reads **Resolve** rather than Edit, is styled to catch the eye, and opens an editor that focuses the date field and explains that this item is sitting outside the forecast until it gets one. That is the correction with real consequences: resolving a date is what moves an item out of **Not on the calendar** and into the week by week shape, changing the crunch weeks and everything computed from them.
+
+Switching an item to weekly or every-two-weeks swaps the single date field for a first and last, since a recurring item is defined by its run. Validation is specific rather than generic: a nameless item, a non-numeric weight, a recurring item with no range, and a range that ends before it starts each get their own message explaining what is wrong. Cancel and Escape both discard cleanly, so an abandoned edit never lands.
+
+Corrected items are flagged with a small **edited** badge. That badge matters more than it looks: months into a term you need to be able to tell your own verified judgment apart from the model's original guess, and an app that silently absorbed hand corrections would destroy that distinction.
+
+Extraction can also miss an item entirely, which no edit button can fix, so the Deliverables tab carries an add control per course that opens the same editor blank. A hand-added item counts toward the forecast and the grade exactly like an imported one, and is marked as edited for the same reason. Items can also be deleted, which is the fix for something the model invented outright.
+
+The editor is suppressed in report mode, so a printed forecast carries no controls.
+
 ## Categories with many pieces
 
 A grading line is often a bucket rather than a single thing: ten labs, fourteen discussion posts, three case analyses. The extraction now pulls a `count` and a `drop` off each line, reading language like "10 labs, lowest dropped", "best 12 of 14 count", or "one post per week" across a fourteen week term. Any line with more than one piece gets an expander, and opening it gives you a box per piece.
@@ -85,7 +99,7 @@ Single file, vanilla HTML, CSS, and JavaScript. No frameworks, no build step, no
 
 The forecast is DOM and CSS rather than canvas. That was a deliberate choice: every week is a real button, so it is tappable, focusable, and screen-reader addressable for free, and it sidesteps the canvas hazards this project has hit before.
 
-Validated headlessly under jsdom across four suites and 228 assertions covering the runway arithmetic at four boundaries (partial, unreachable, locked in, fully graded), the score parser across eleven accepted formats and eight rejected ones, drop-lowest behaviour at partial and full completion, the graded fraction of an incomplete category, extra credit staying out of every denominator it should, the week bucketing, empty and undated weeks, filters, persistence, course removal, report assembly, and the degradation path when stored data is malformed or corrupt. The parser suite asserts that the same two grades entered as percentages and as points produce byte-identical runway output, which is the property that actually matters.
+Validated headlessly under jsdom across five suites and 297 assertions covering the runway arithmetic at four boundaries (partial, unreachable, locked in, fully graded), the score parser across eleven accepted formats and eight rejected ones, drop-lowest behaviour at partial and full completion, the graded fraction of an incomplete category, extra credit staying out of every denominator it should, the full edit path including validation refusals, date resolution moving an item onto the calendar, add and delete, and cancel leaving no trace, the week bucketing, empty and undated weeks, filters, persistence, course removal, report assembly, and the degradation path when stored data is malformed or corrupt. The parser suite asserts that the same two grades entered as percentages and as points produce byte-identical runway output, which is the property that actually matters.
 
 Two real bugs came out of testing rather than review: a null dereference when the first-run panel was re-read after being destroyed, and a crash on malformed stored courses that jsdom was quietly swallowing until the harness was rewired to surface `jsdomError`. Both are fixed, and stored courses are now sanitized on load so a bad record degrades into a thin course instead of blanking the page.
 
