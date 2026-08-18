@@ -265,6 +265,26 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
   .frow,.frow3{grid-template-columns:1fr}
   .row-edit{padding:5px 9px}
 }
+.wrow .sedit{
+  flex:0 0 auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.05em;
+  border:1px solid var(--rule2);background:var(--card);border-radius:999px;
+  padding:4px 9px;color:var(--ink3);white-space:nowrap;
+}
+.wrow .sedit:hover{border-color:var(--accent);color:var(--accent)}
+.wrow.schemeedited .nm span::after{
+  content:"edited";margin-left:7px;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--accent);background:var(--accent-soft);
+  border:1px solid var(--accent-soft);border-radius:4px;padding:1px 5px;
+}
+.tag.tbtn{cursor:pointer}
+.tag.tbtn:hover{border-color:var(--accent);color:var(--accent)}
+.checkrow{
+  display:flex;gap:10px;align-items:flex-start;margin:4px 0 14px;
+  background:var(--card2);border:1px solid var(--rule);border-radius:11px;padding:11px 12px;
+  font-size:12.5px;color:var(--ink2);cursor:pointer;
+}
+.checkrow input{flex:0 0 auto;margin-top:2px;width:16px;height:16px}
+.schemetools{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
 .filters{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0 4px}
 .fbtn{border:1px solid var(--rule2);background:var(--card);border-radius:999px;padding:5px 11px;font-size:12.5px;font-weight:600}
 .fbtn[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}
@@ -589,6 +609,73 @@ footer a{color:var(--ink2)}
   </div>
 </div>
 
+<div class="overlay hidden" id="schemeedit">
+  <div class="modal wide" role="dialog" aria-modal="true" aria-labelledby="setitle">
+    <h2 id="setitle">Edit grading line</h2>
+    <p id="sesub">Instructors change the breakdown mid-term. Adjust it here and every number recomputes.</p>
+
+    <div class="field">
+      <label for="se-item">What it covers</label>
+      <input id="se-item" type="text" placeholder="Weekly labs" autocomplete="off">
+    </div>
+
+    <div class="frow3">
+      <div class="field">
+        <label for="se-weight">Percent of grade</label>
+        <input id="se-weight" type="text" inputmode="decimal" placeholder="25" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="se-count">How many pieces</label>
+        <input id="se-count" type="text" inputmode="numeric" placeholder="10" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="se-drop">Lowest dropped</label>
+        <input id="se-drop" type="text" inputmode="numeric" placeholder="1" autocomplete="off">
+      </div>
+    </div>
+    <div class="hint">One piece means a single graded thing such as a final. Ten means ten labs, each
+      entered separately. For "best 8 of 10", put 10 pieces and 2 dropped.</div>
+
+    <label class="checkrow" for="se-ec">
+      <input id="se-ec" type="checkbox">
+      <span><b>This is extra credit</b><br>Adds on top of the final grade instead of being part of it,
+      so it stays out of the 100 percent.</span>
+    </label>
+
+    <div class="field">
+      <label for="se-note">Note</label>
+      <input id="se-note" type="text" placeholder="lowest dropped" autocomplete="off">
+    </div>
+
+    <div class="notice hidden" id="se-warn"></div>
+    <div class="notice hidden" id="se-err"></div>
+
+    <div class="modal-actions">
+      <button class="btn danger" id="se-delete" type="button">Delete</button>
+      <span style="flex:1 1 auto"></span>
+      <button class="btn" id="se-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="se-save" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="targetedit">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tetitle">
+    <h2 id="tetitle">Grade target</h2>
+    <p>The percent you are aiming for. The runway measures everything against this.</p>
+    <div class="field">
+      <label for="te-val">Target percent</label>
+      <input id="te-val" type="text" inputmode="decimal" placeholder="90" autocomplete="off">
+      <div class="hint">Usually the lowest percent that earns an A on the syllabus scale. Anything from 50 to 100.</div>
+    </div>
+    <div class="notice hidden" id="te-err"></div>
+    <div class="modal-actions">
+      <button class="btn" id="te-cancel" type="button">Cancel</button>
+      <button class="btn btn-primary" id="te-save" type="button">Save</button>
+    </div>
+  </div>
+</div>
+
 <footer>
   Day 092 of <a href="https://augustineiacopelli.github.io/appaday/">AppADay</a> by Augustine Iacopelli.
   <br>Syllabus text goes straight from your browser to the Anthropic API. Nothing is stored on a server.
@@ -773,9 +860,12 @@ footer a{color:var(--ink2)}
         if (sdr > scn - 1) { sdr = Math.max(0, scn - 1); }
         if (sn && isFinite(sw) && sw >= 0) {
           out.scheme.push({
+            sid: (typeof s.sid === "string" && s.sid) ? s.sid : newSid(),
+            legacyIndex: (typeof s.sid === "string" && s.sid) ? -1 : i,
             item: sn.slice(0, 44), weight: r1(sw), count: scn, drop: sdr,
             extraCredit: s.extraCredit === true,
-            note: typeof s.note === "string" ? s.note : ""
+            note: typeof s.note === "string" ? s.note : "",
+            edited: s.edited === true
           });
         }
       }
@@ -986,6 +1076,8 @@ footer a{color:var(--ink2)}
     if (!overlay.classList.contains("hidden")) { closeSettings(); }
     if (!$("confirm").classList.contains("hidden")) { closeConfirm(); }
     if (!$("itemedit").classList.contains("hidden")) { closeItemEditor(); }
+    if (!$("schemeedit").classList.contains("hidden")) { closeSchemeEditor(); }
+    if (!$("targetedit").classList.contains("hidden")) { closeTargetEditor(); }
   });
 
   var testBtn = $("test"), testOut = $("testresult");
@@ -1358,9 +1450,11 @@ footer a{color:var(--ink2)}
       if (drp > cnt - 1) { drp = Math.max(0, cnt - 1); }
       if (nm && isFinite(w) && w >= 0) {
         scheme.push({
+          sid: newSid(),
           item: nm, weight: r1(w), count: cnt, drop: drp,
           extraCredit: (raw[i] && raw[i].extraCredit) === true,
-          note: String((raw[i] && raw[i].note) || "").slice(0, 90)
+          note: String((raw[i] && raw[i].note) || "").slice(0, 90),
+          edited: false
         });
       }
     }
@@ -2083,8 +2177,22 @@ footer a{color:var(--ink2)}
   }
 
   /* ---------- grades tab ---------- */
-  function scoreKey(cid, i) { return cid + "|" + i; }
-  function subKey(cid, i, k) { return cid + "|" + i + "|" + k; }
+  /* Scores hang off a scheme line's stable id, never its position. Without that, deleting or
+     reordering a line would silently reattach entered grades to the wrong category, which is
+     the worst kind of bug in a tool people trust with their standing. */
+  var sidSeq = 0;
+  function newSid() {
+    sidSeq++;
+    return "s" + Date.now().toString(36) + sidSeq.toString(36);
+  }
+  function sidAt(c, i) {
+    var s = c.scheme[i];
+    if (!s) { return "x"; }
+    if (!s.sid) { s.sid = newSid(); }
+    return s.sid;
+  }
+  function scoreKey(c, i) { return c.id + "|" + sidAt(c, i); }
+  function subKey(c, i, k) { return c.id + "|" + sidAt(c, i) + "|" + k; }
 
   /* ---------- category standing ----------
      A scheme line can be a single graded thing, or a bucket of many: ten labs, fourteen
@@ -2100,7 +2208,7 @@ footer a{color:var(--ink2)}
 
     var vals = [], raw = [], k, p;
     for (k = 0; k < n; k++) {
-      p = parseScore(scores[subKey(c.id, si, k)]);
+      p = parseScore(scores[subKey(c, si, k)]);
       if (p !== null) { vals.push(p); raw.push({ k: k, p: p }); }
     }
 
@@ -2120,7 +2228,7 @@ footer a{color:var(--ink2)}
       };
     }
 
-    var cp = parseScore(scores[scoreKey(c.id, si)]);
+    var cp = parseScore(scores[scoreKey(c, si)]);
     if (cp !== null) {
       return {
         mode: "category", pct: cp, fraction: 1, n: n, drop: d, effTotal: effTotal,
@@ -2241,9 +2349,19 @@ footer a{color:var(--ink2)}
     head.className = "head";
     head.innerHTML = '<span class="dotc" style="background:' + colorFor(idx) + ';width:13px;height:13px"></span>' +
       "<h2 style=\"flex:1 1 auto;min-width:0\">" + esc(c.name) + "</h2>" +
-      (ecW > 0 ? '<span class="tag ec">+' + r1(ecW) + "% extra credit</span>" : "") +
-      '<span class="tag">target ' + r1(c.target) + "%</span>";
+      (ecW > 0 ? '<span class="tag ec">+' + r1(ecW) + "% extra credit</span>" : "");
     card.appendChild(head);
+
+    var tgt = document.createElement(reportMode ? "span" : "button");
+    tgt.className = "tag tbtn";
+    tgt.textContent = "target " + r1(c.target) + "%";
+    if (!reportMode) {
+      tgt.type = "button";
+      tgt.title = "Change the percent you are aiming for";
+      tgt.setAttribute("aria-label", "Change the grade target for " + c.name);
+      tgt.addEventListener("click", function () { openTargetEditor(idx); });
+    }
+    head.appendChild(tgt);
 
     if (!c.scheme.length) {
       var no = document.createElement("p");
@@ -2251,8 +2369,10 @@ footer a{color:var(--ink2)}
       no.style.fontSize = "13.5px";
       no.style.margin = "0";
       no.textContent = "No grading breakdown came back for this course, so there is nothing to weigh. " +
-        "The schedule and policies are still on the other tabs.";
+        "The schedule and policies are still on the other tabs." +
+        (reportMode ? "" : " You can build the breakdown by hand below.");
       card.appendChild(no);
+      if (!reportMode) { card.appendChild(schemeTools(idx)); }
       return card;
     }
 
@@ -2300,13 +2420,27 @@ footer a{color:var(--ink2)}
     }
 
     for (i = 0; i < c.scheme.length; i++) { buildSchemeRow(c, idx, i, list, painters, refresh, card); }
+    if (!reportMode) { card.appendChild(schemeTools(idx)); }
     refresh();
     return card;
   }
 
+  function schemeTools(idx) {
+    var wrap = document.createElement("div");
+    wrap.className = "schemetools";
+    var add = document.createElement("button");
+    add.className = "btn btn-sm";
+    add.type = "button";
+    add.textContent = "+ Add a grading line";
+    add.title = "A category the syllabus left out, or one the instructor added later";
+    add.addEventListener("click", function () { openSchemeEditor(idx, -1); });
+    wrap.appendChild(add);
+    return wrap;
+  }
+
   function buildSchemeRow(c, idx, si, list, painters, refresh, card) {
     var s = c.scheme[si];
-    var key = scoreKey(c.id, si);
+    var key = scoreKey(c, si);
     var many = (s.count > 1);
 
     var row = document.createElement("div");
@@ -2320,6 +2454,8 @@ footer a{color:var(--ink2)}
       (has(s.note) ? ' <span class="muted">(' + esc(s.note) + ")</span>" : "") + "</span>";
     nm.innerHTML = nmh;
     row.appendChild(nm);
+
+    if (s.edited) { row.className += " schemeedited"; }
 
     var wt = document.createElement("div");
     wt.className = "wt" + (s.extraCredit ? " ec" : "");
@@ -2366,6 +2502,15 @@ footer a{color:var(--ink2)}
     conv.className = "conv";
     row.appendChild(conv);
 
+    var seb = document.createElement("button");
+    seb.className = "sedit";
+    seb.type = "button";
+    seb.textContent = "Edit";
+    seb.title = "Change the weight, the number of pieces, the drop rule, or make it extra credit";
+    seb.setAttribute("aria-label", "Edit the grading line " + s.item + " in " + c.name);
+    seb.addEventListener("click", function () { openSchemeEditor(idx, si); });
+    row.appendChild(seb);
+
     var toggle = null, subs = null, subSummary = null;
     if (many) {
       toggle = document.createElement("button");
@@ -2400,12 +2545,12 @@ footer a{color:var(--ink2)}
           si2.type = "text";
           si2.inputMode = "text";
           si2.placeholder = "\u2014";
-          si2.value = scores[subKey(c.id, si, kk)] || "";
+          si2.value = scores[subKey(c, si, kk)] || "";
           si2.setAttribute("aria-label", s.item + " number " + (kk + 1));
           si2.addEventListener("input", function () {
             var v = si2.value.trim();
-            if (v === "") { delete scores[subKey(c.id, si, kk)]; }
-            else { scores[subKey(c.id, si, kk)] = v; }
+            if (v === "") { delete scores[subKey(c, si, kk)]; }
+            else { scores[subKey(c, si, kk)] = v; }
             persist();
             refresh();
           });
@@ -2422,7 +2567,7 @@ footer a{color:var(--ink2)}
       clearBtn.textContent = "Clear these";
       clearBtn.addEventListener("click", function () {
         var kk;
-        for (kk = 0; kk < s.count; kk++) { delete scores[subKey(c.id, si, kk)]; }
+        for (kk = 0; kk < s.count; kk++) { delete scores[subKey(c, si, kk)]; }
         persist();
         var boxes = grid.querySelectorAll("input"), q;
         for (q = 0; q < boxes.length; q++) { boxes[q].value = ""; }
@@ -2516,7 +2661,7 @@ footer a{color:var(--ink2)}
   function enteredListText(c, si) {
     var s = c.scheme[si], out = [], k, v;
     for (k = 0; k < s.count; k++) {
-      v = scores[subKey(c.id, si, k)];
+      v = scores[subKey(c, si, k)];
       if (v) { out.push((k + 1) + ": " + v); }
     }
     return out.join(", ");
@@ -2963,6 +3108,209 @@ footer a{color:var(--ink2)}
     if (e.target === $("itemedit")) { closeItemEditor(); }
   });
 
+  /* ---------------- grading breakdown editor ---------------- */
+  /* Instructors change the breakdown mid-term: a dropped exam, a reweighted project, a new
+     participation line. The imported table has to be editable or the whole grade side goes
+     stale the first time that happens. */
+  var editingScheme = null;
+
+  function blankScheme() {
+    return {
+      sid: newSid(), item: "", weight: 0, count: 1, drop: 0,
+      extraCredit: false, note: "", edited: true
+    };
+  }
+
+  function openSchemeEditor(ci, si) {
+    var c = courses[ci];
+    if (!c) { return; }
+    var isNew = (si === -1);
+    if (!isNew && !c.scheme[si]) { return; }
+    var s = isNew ? blankScheme() : c.scheme[si];
+    editingScheme = { ci: ci, si: si, isNew: isNew };
+
+    $("setitle").textContent = isNew ? "Add a grading line" : "Edit grading line";
+    $("sesub").textContent = isNew
+      ? "Something the breakdown is missing, or a category the instructor added after the syllabus went out."
+      : "Instructors change the breakdown mid-term. Adjust it here and every number recomputes.";
+    $("se-delete").textContent = isNew ? "Discard" : "Delete";
+
+    $("se-item").value = s.item || "";
+    $("se-weight").value = s.weight || s.weight === 0 ? String(r1(s.weight)) : "";
+    $("se-count").value = String(s.count || 1);
+    $("se-drop").value = String(s.drop || 0);
+    $("se-ec").checked = s.extraCredit === true;
+    $("se-note").value = s.note || "";
+
+    hideSchemeErr();
+    schemeWarn(ci, si, isNew);
+    $("schemeedit").classList.remove("hidden");
+    setTimeout(function () { $("se-item").focus(); }, 40);
+  }
+
+  /* Warn before, not after: changing a count or deleting a line can strand entered scores, and
+     the person should know that while they still have the option to back out. */
+  function schemeWarn(ci, si, isNew) {
+    var w = $("se-warn");
+    w.className = "notice hidden";
+    clear(w);
+    if (isNew) { return; }
+    var c = courses[ci], s = c.scheme[si];
+    var st = categoryStanding(c, si);
+    var msgs = [];
+    if (st.mode === "items" && st.entered > 0) {
+      msgs.push("You have " + st.entered + " of " + s.count + " scores entered on this line. Lowering the " +
+        "number of pieces drops the ones past the new count.");
+    } else if (st.mode === "category") {
+      msgs.push("There is a score entered on this line. It is kept unless you delete the line.");
+    }
+    if (msgs.length) {
+      w.className = "notice info";
+      w.innerHTML = '<span class="n-msg">' + esc(msgs.join(" ")) + "</span>";
+    }
+  }
+
+  function closeSchemeEditor() {
+    $("schemeedit").classList.add("hidden");
+    editingScheme = null;
+    hideSchemeErr();
+  }
+  function showSchemeErr(m) {
+    var e = $("se-err");
+    e.className = "notice";
+    e.innerHTML = '<span class="n-msg">' + esc(m) + "</span>";
+  }
+  function hideSchemeErr() {
+    var e = $("se-err");
+    e.className = "notice hidden";
+    clear(e);
+  }
+
+  function readInt(id, fallback, min, max) {
+    var raw = $(id).value.trim();
+    if (!raw) { return fallback; }
+    var v = parseInt(raw, 10);
+    if (!isFinite(v)) { return null; }
+    if (v < min) { v = min; }
+    if (v > max) { v = max; }
+    return v;
+  }
+
+  $("se-save").addEventListener("click", function () {
+    if (!editingScheme) { return; }
+    var c = courses[editingScheme.ci];
+    if (!c) { closeSchemeEditor(); return; }
+    var s = editingScheme.isNew ? blankScheme() : c.scheme[editingScheme.si];
+    if (!s) { closeSchemeEditor(); return; }
+
+    var item = $("se-item").value.trim();
+    if (!item) { showSchemeErr("Give the line a name first."); $("se-item").focus(); return; }
+
+    var raw = $("se-weight").value.trim().replace(/%/g, "");
+    var weight = raw === "" ? 0 : parseFloat(raw);
+    if (!isFinite(weight) || weight < 0) {
+      showSchemeErr("Percent of grade has to be a number that is zero or more.");
+      return;
+    }
+    var count = readInt("se-count", 1, 1, 60);
+    if (count === null) { showSchemeErr("How many pieces has to be a whole number."); return; }
+    var drop = readInt("se-drop", 0, 0, 59);
+    if (drop === null) { showSchemeErr("Lowest dropped has to be a whole number."); return; }
+    if (drop > count - 1) {
+      showSchemeErr("You cannot drop " + drop + " of " + count + ". At least one has to count.");
+      return;
+    }
+
+    var oldCount = s.count || 1;
+    s.item = item.slice(0, 44);
+    s.weight = r1(weight);
+    s.count = count;
+    s.drop = drop;
+    s.extraCredit = $("se-ec").checked === true;
+    s.note = $("se-note").value.trim().slice(0, 90);
+    s.edited = true;
+
+    /* Shrinking a category leaves scores hanging off pieces that no longer exist. Drop them
+       rather than let invisible entries keep skewing the average. */
+    var pruned = 0, k;
+    if (count < oldCount) {
+      for (k = count; k < oldCount; k++) {
+        var kk = c.id + "|" + s.sid + "|" + k;
+        if (Object.prototype.hasOwnProperty.call(scores, kk)) { delete scores[kk]; pruned++; }
+      }
+    }
+
+    var added = editingScheme.isNew;
+    if (added) { c.scheme.push(s); }
+
+    persist();
+    closeSchemeEditor();
+    renderAll();
+    showNotice((added ? "Added " : "Updated ") + s.item +
+      (pruned ? ". Dropped " + pruned + " score" + (pruned === 1 ? "" : "s") +
+        " that no longer had a piece to sit on." : "."), "info");
+  });
+
+  $("se-delete").addEventListener("click", function () {
+    if (!editingScheme) { return; }
+    if (editingScheme.isNew) { closeSchemeEditor(); return; }
+    var c = courses[editingScheme.ci];
+    var s = c && c.scheme[editingScheme.si];
+    if (!s) { closeSchemeEditor(); return; }
+    var name = s.item, sid = s.sid;
+
+    c.scheme.splice(editingScheme.si, 1);
+    var k, pref = c.id + "|" + sid;
+    for (k in scores) {
+      if (Object.prototype.hasOwnProperty.call(scores, k) && (k === pref || k.indexOf(pref + "|") === 0)) {
+        delete scores[k];
+      }
+    }
+    persist();
+    closeSchemeEditor();
+    renderAll();
+    showNotice("Removed " + name + " and any scores entered on it.", "info");
+  });
+
+  $("se-cancel").addEventListener("click", closeSchemeEditor);
+  $("schemeedit").addEventListener("click", function (e) {
+    if (e.target === $("schemeedit")) { closeSchemeEditor(); }
+  });
+
+  /* ---------------- target editor ---------------- */
+  var editingTarget = null;
+  function openTargetEditor(ci) {
+    if (!courses[ci]) { return; }
+    editingTarget = ci;
+    $("te-val").value = String(r1(courses[ci].target));
+    $("te-err").className = "notice hidden";
+    clear($("te-err"));
+    $("targetedit").classList.remove("hidden");
+    setTimeout(function () { $("te-val").focus(); }, 40);
+  }
+  function closeTargetEditor() {
+    $("targetedit").classList.add("hidden");
+    editingTarget = null;
+  }
+  $("te-save").addEventListener("click", function () {
+    if (editingTarget === null) { return; }
+    var v = parseFloat($("te-val").value.trim().replace(/%/g, ""));
+    if (!isFinite(v) || v < 50 || v > 100) {
+      var e = $("te-err");
+      e.className = "notice";
+      e.innerHTML = '<span class="n-msg">Give a number between 50 and 100.</span>';
+      return;
+    }
+    courses[editingTarget].target = r1(v);
+    persist();
+    closeTargetEditor();
+    renderAll();
+  });
+  $("te-cancel").addEventListener("click", closeTargetEditor);
+  $("targetedit").addEventListener("click", function (e) {
+    if (e.target === $("targetedit")) { closeTargetEditor(); }
+  });
+
   /* ---------------- tabs ---------------- */
   ["forecast", "work", "grades", "policies"].forEach(function (k) {
     $("tab-" + k).addEventListener("click", function () { tab = k; renderAll(); });
@@ -3057,9 +3405,38 @@ footer a{color:var(--ink2)}
   });
 
   /* ---------------- boot ---------------- */
+  /* Scores written before scheme lines had stable ids were keyed by position. Move them onto
+     the new keys once, at load, so nobody loses a term's worth of entered grades. */
+  function migrateLegacyScores(c) {
+    var i, j, oldK, newK, oldSub, newSub;
+    for (i = 0; i < c.scheme.length; i++) {
+      var li = c.scheme[i].legacyIndex;
+      delete c.scheme[i].legacyIndex;
+      if (li === undefined || li < 0) { continue; }
+      oldK = c.id + "|" + li;
+      newK = c.id + "|" + c.scheme[i].sid;
+      if (Object.prototype.hasOwnProperty.call(scores, oldK) && oldK !== newK) {
+        scores[newK] = scores[oldK];
+        delete scores[oldK];
+      }
+      for (j = 0; j < c.scheme[i].count; j++) {
+        oldSub = c.id + "|" + li + "|" + j;
+        newSub = c.id + "|" + c.scheme[i].sid + "|" + j;
+        if (Object.prototype.hasOwnProperty.call(scores, oldSub) && oldSub !== newSub) {
+          scores[newSub] = scores[oldSub];
+          delete scores[oldSub];
+        }
+      }
+    }
+  }
+
   (function boot() {
     var i;
-    for (i = 0; i < courses.length; i++) { courses[i] = rehydrate(courses[i]); }
+    for (i = 0; i < courses.length; i++) {
+      courses[i] = rehydrate(courses[i]);
+      migrateLegacyScores(courses[i]);
+    }
+    persist();
     updateCounter();
     markGear();
     if (courses.length) { renderAll(); }
