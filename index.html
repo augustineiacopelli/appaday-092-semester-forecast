@@ -330,7 +330,7 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
   padding:12px;margin:2px 0 10px;
 }
 .subsum{font-size:12px;color:var(--ink2);margin-bottom:10px;line-height:1.45}
-.subgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.subgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(108px,1fr));gap:8px}
 .subcell{display:flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--rule);border-radius:8px;padding:4px 6px}
 .sublab{font-family:var(--mono);font-size:10.5px;color:var(--ink3);flex:0 0 16px;text-align:right}
 .subcell input{
@@ -351,6 +351,24 @@ textarea:focus,input:focus{outline:2px solid var(--accent);outline-offset:1px}
 .rail3 .e{background:var(--steady)}
 .rail3 .l{background:var(--crunch)}
 .rail3 .o{background:var(--clear)}
+.rail3 .w{background:repeating-linear-gradient(45deg,var(--accent-soft) 0 5px,#c9dcef 5px 10px)}
+.handed{
+  flex:0 0 auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;
+  border:1px solid var(--rule2);background:var(--card2);border-radius:999px;
+  padding:5px 10px;min-height:28px;color:var(--ink3);white-space:nowrap;
+}
+.handed:hover{border-color:var(--accent);color:var(--accent)}
+.handed.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+.handed.done{opacity:.4;cursor:not-allowed}
+.tick{
+  flex:0 0 auto;width:28px;height:28px;padding:0;line-height:1;font-size:13px;
+  border:1px solid var(--rule2);background:var(--card2);border-radius:7px;color:var(--rule2);
+}
+.tick:hover{border-color:var(--accent);color:var(--accent)}
+.tick.on{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:700}
+.tick.done{opacity:.35;cursor:not-allowed}
+.subcell.waiting{border-color:var(--accent);background:var(--accent-soft)}
+.verdict.waitline{color:var(--accent);font-size:13px;margin-top:6px}
 .rlegend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:11.5px;color:var(--ink2)}
 .verdict{font-size:13.5px;margin-top:9px;line-height:1.5}
 .verdict b{font-family:var(--mono)}
@@ -725,6 +743,7 @@ footer a{color:var(--ink2)}
   var K_SESSION = "appaday092-session";
   var K_COURSES = "appaday092-courses";
   var K_SCORES = "appaday092-scores";
+  var K_HANDED = "appaday092-handed";
   var MAX_CHARS = 60000;
   var MAX_FILE_BYTES = 25 * 1024 * 1024;
 
@@ -798,6 +817,10 @@ footer a{color:var(--ink2)}
   /* ---------------- state ---------------- */
   var courses = [];
   var scores = {};
+  /* Work that is turned in but not back yet. Same keyspace as scores, so a line or a piece
+     is graded when it has a score, waiting when it has only a flag, and open otherwise.
+     A score always wins, which means entering one needs no cleanup pass here. */
+  var handed = {};
   var tab = "forecast";
   var pickedWeek = null;
   var typeFilter = "all";
@@ -808,6 +831,8 @@ footer a{color:var(--ink2)}
   if (!(courses instanceof Array)) { courses = []; }
   try { scores = JSON.parse(load(K_SCORES, "{}")) || {}; } catch (e) { scores = {}; }
   if (typeof scores !== "object" || scores === null) { scores = {}; }
+  try { handed = JSON.parse(load(K_HANDED, "{}")) || {}; } catch (e) { handed = {}; }
+  if (typeof handed !== "object" || handed === null) { handed = {}; }
 
   /* A stored course can be malformed: clipped by a full quota, hand edited, or written by an
      older shape of this app. Guarantee every field before anything tries to read it, so a bad
@@ -912,6 +937,7 @@ footer a{color:var(--ink2)}
   function persist() {
     try { save(K_COURSES, JSON.stringify(courses)); } catch (e) { /* too large */ }
     try { save(K_SCORES, JSON.stringify(scores)); } catch (e) { /* too large */ }
+    try { save(K_HANDED, JSON.stringify(handed)); } catch (e) { /* too large */ }
   }
 
   /* ---------------- dates ---------------- */
@@ -1131,6 +1157,9 @@ footer a{color:var(--ink2)}
       var k;
       for (k in scores) {
         if (Object.prototype.hasOwnProperty.call(scores, k) && k.indexOf(id + "|") === 0) { delete scores[k]; }
+      }
+      for (k in handed) {
+        if (Object.prototype.hasOwnProperty.call(handed, k) && k.indexOf(id + "|") === 0) { delete handed[k]; }
       }
       persist();
       pickedWeek = null;
@@ -2206,10 +2235,17 @@ footer a{color:var(--ink2)}
     var d = Math.max(0, Math.min(s.drop, n - 1));
     var effTotal = Math.max(1, n - d);
 
-    var vals = [], raw = [], k, p;
+    var vals = [], raw = [], k, p, waiting = 0;
     for (k = 0; k < n; k++) {
       p = parseScore(scores[subKey(c, si, k)]);
       if (p !== null) { vals.push(p); raw.push({ k: k, p: p }); }
+      else if (n > 1 && handed[subKey(c, si, k)]) { waiting++; }
+    }
+
+    /* Waiting never eats into what is already marked: it can only claim the part of the
+       category that is still open, which keeps the two shares from ever double counting. */
+    function share(fraction) {
+      return Math.max(0, Math.min(1 - fraction, waiting / effTotal));
     }
 
     if (vals.length) {
@@ -2219,9 +2255,10 @@ footer a{color:var(--ink2)}
       var kept = sorted.slice(dropsApplied);
       var sum = 0, j;
       for (j = 0; j < kept.length; j++) { sum += kept[j]; }
+      var fr = Math.min(1, kept.length / effTotal);
       return {
         mode: "items", pct: sum / kept.length,
-        fraction: Math.min(1, kept.length / effTotal),
+        fraction: fr, waiting: waiting, waitingFraction: share(fr),
         n: n, drop: d, effTotal: effTotal,
         entered: vals.length, kept: kept.length,
         dropsApplied: dropsApplied, dropped: dropped
@@ -2231,12 +2268,15 @@ footer a{color:var(--ink2)}
     var cp = parseScore(scores[scoreKey(c, si)]);
     if (cp !== null) {
       return {
-        mode: "category", pct: cp, fraction: 1, n: n, drop: d, effTotal: effTotal,
+        mode: "category", pct: cp, fraction: 1, waiting: 0, waitingFraction: 0,
+        n: n, drop: d, effTotal: effTotal,
         entered: 0, kept: 0, dropsApplied: 0, dropped: []
       };
     }
+    if (n === 1 && handed[scoreKey(c, si)]) { waiting = 1; }
     return {
-      mode: "none", pct: null, fraction: 0, n: n, drop: d, effTotal: effTotal,
+      mode: "none", pct: null, fraction: 0, waiting: waiting, waitingFraction: share(0),
+      n: n, drop: d, effTotal: effTotal,
       entered: 0, kept: 0, dropsApplied: 0, dropped: []
     };
   }
@@ -2247,7 +2287,7 @@ footer a{color:var(--ink2)}
      what you have earned but never to the denominator, which is what makes it a bonus rather
      than just another graded line. */
   function computeCourse(c) {
-    var scale = 0, earnedBase = 0, gradedBaseW = 0;
+    var scale = 0, earnedBase = 0, gradedBaseW = 0, waitingW = 0;
     var earnedEC = 0, ecAvailable = 0, ecClaimed = 0;
     var standings = [], i, s, st;
 
@@ -2267,11 +2307,13 @@ footer a{color:var(--ink2)}
           gradedBaseW += s.weight * st.fraction;
           earnedBase += s.weight * st.fraction * (st.pct / 100);
         }
+        waitingW += s.weight * st.waitingFraction;
       }
     }
     if (scale <= 0) { scale = 100; }
     var open = scale - gradedBaseW;
     if (open < 0.0001) { open = 0; }
+    if (waitingW > open) { waitingW = open; }
 
     return {
       standings: standings,
@@ -2280,6 +2322,7 @@ footer a{color:var(--ink2)}
       earnedEC: earnedEC,
       gradedBaseW: gradedBaseW,
       open: open,
+      waiting: waitingW,
       lost: gradedBaseW - earnedBase,
       ecAvailable: ecAvailable,
       ecClaimed: ecClaimed,
@@ -2472,14 +2515,14 @@ footer a{color:var(--ink2)}
       stat.className = "scorestatic";
       if (st0.mode === "items") { stat.textContent = st0.entered + " of " + st0.n; }
       else if (st0.mode === "category") { stat.textContent = String(scores[key]); }
-      else { stat.textContent = "\u2014"; }
+      else { stat.textContent = st0.waiting > 0 ? "handed in" : "\u2014"; }
       row.appendChild(stat);
       var cv = document.createElement("div");
       cv.className = "conv";
       cv.textContent = st0.pct === null ? "" : r1(st0.pct) + "%";
       row.appendChild(cv);
       list.appendChild(row);
-      if (st0.mode === "items") {
+      if (st0.mode === "items" || st0.waiting > 0) {
         var det = document.createElement("div");
         det.className = "substatic";
         det.textContent = subSummaryText(c, si, st0) + "  \u00b7  " + enteredListText(c, si);
@@ -2502,6 +2545,21 @@ footer a{color:var(--ink2)}
     conv.className = "conv";
     row.appendChild(conv);
 
+    /* One control, three states, derived rather than stored: a score makes it graded, a flag
+       with no score makes it waiting, neither makes it open. */
+    var handBtn = null;
+    if (!many) {
+      handBtn = document.createElement("button");
+      handBtn.className = "handed";
+      handBtn.type = "button";
+      handBtn.addEventListener("click", function () {
+        if (handed[key]) { delete handed[key]; } else { handed[key] = 1; }
+        persist();
+        refresh();
+      });
+      row.appendChild(handBtn);
+    }
+
     var seb = document.createElement("button");
     seb.className = "sedit";
     seb.type = "button";
@@ -2511,7 +2569,7 @@ footer a{color:var(--ink2)}
     seb.addEventListener("click", function () { openSchemeEditor(idx, si); });
     row.appendChild(seb);
 
-    var toggle = null, subs = null, subSummary = null;
+    var toggle = null, subs = null, subSummary = null, cellPainters = [];
     if (many) {
       toggle = document.createElement("button");
       toggle.className = "expand";
@@ -2536,6 +2594,7 @@ footer a{color:var(--ink2)}
       var k;
       for (k = 0; k < s.count; k++) {
         (function (kk) {
+          var pkey = subKey(c, si, kk);
           var cell = document.createElement("label");
           cell.className = "subcell";
           var lab = document.createElement("span");
@@ -2545,17 +2604,41 @@ footer a{color:var(--ink2)}
           si2.type = "text";
           si2.inputMode = "text";
           si2.placeholder = "\u2014";
-          si2.value = scores[subKey(c, si, kk)] || "";
+          si2.value = scores[pkey] || "";
           si2.setAttribute("aria-label", s.item + " number " + (kk + 1));
           si2.addEventListener("input", function () {
             var v = si2.value.trim();
-            if (v === "") { delete scores[subKey(c, si, kk)]; }
-            else { scores[subKey(c, si, kk)] = v; }
+            if (v === "") { delete scores[pkey]; }
+            else { scores[pkey] = v; }
+            persist();
+            refresh();
+          });
+          var tk = document.createElement("button");
+          tk.className = "tick";
+          tk.type = "button";
+          tk.textContent = "\u2713";
+          tk.addEventListener("click", function (ev) {
+            ev.preventDefault();
+            if (handed[pkey]) { delete handed[pkey]; } else { handed[pkey] = 1; }
             persist();
             refresh();
           });
           cell.appendChild(lab);
           cell.appendChild(si2);
+          cell.appendChild(tk);
+          cellPainters.push(function () {
+            var graded = parseScore(scores[pkey]) !== null;
+            var on = !graded && !!handed[pkey];
+            tk.disabled = graded;
+            tk.className = "tick" + (on ? " on" : "") + (graded ? " done" : "");
+            tk.title = graded
+              ? "Graded. The score below is what counts now."
+              : (on ? "Handed in, waiting on a grade. Click to unmark." : "Mark number " + (kk + 1) + " as handed in.");
+            tk.setAttribute("aria-pressed", on ? "true" : "false");
+            tk.setAttribute("aria-label",
+              (on ? "Handed in, waiting on a grade: " : "Mark as handed in: ") + s.item + " number " + (kk + 1));
+            cell.className = "subcell" + (on ? " waiting" : "");
+          });
           grid.appendChild(cell);
         })(k);
       }
@@ -2630,8 +2713,25 @@ footer a{color:var(--ink2)}
         }
       }
 
+      if (handBtn) {
+        var graded = (st.pct !== null);
+        var waitingOn = !graded && !!handed[key];
+        handBtn.disabled = graded;
+        handBtn.className = "handed" + (waitingOn ? " on" : "") + (graded ? " done" : "");
+        handBtn.textContent = graded ? "graded" : (waitingOn ? "\u2713 handed in" : "hand in");
+        handBtn.title = graded
+          ? "A score is entered, so this one is graded."
+          : (waitingOn ? "Handed in, waiting on a grade. Click to unmark." : "Mark this as handed in while you wait on the grade.");
+        handBtn.setAttribute("aria-pressed", waitingOn ? "true" : "false");
+        handBtn.setAttribute("aria-label",
+          (waitingOn ? "Handed in, waiting on a grade: " : "Mark as handed in: ") + s.item + " in " + c.name);
+      }
+      var cp2;
+      for (cp2 = 0; cp2 < cellPainters.length; cp2++) { cellPainters[cp2](); }
+
       if (toggle) {
-        toggle.textContent = itemMode ? (st.entered + " of " + st.n) : (st.n + " pieces");
+        toggle.textContent = (itemMode ? (st.entered + " of " + st.n) : (st.n + " pieces")) +
+          (st.waiting > 0 ? " +" + st.waiting + " in" : "");
         toggle.className = (toggle.getAttribute("aria-expanded") === "true" ? "expand on" : "expand") +
           (itemMode ? " filled" : "");
       }
@@ -2643,9 +2743,11 @@ footer a{color:var(--ink2)}
     var s = c.scheme[si];
     if (st.mode !== "items") {
       return "None of the " + st.n + " entered yet" +
+        (st.waiting > 0 ? ", " + st.waiting + " handed in and waiting on a grade" : "") +
         (st.drop > 0 ? ", lowest " + st.drop + " will be dropped" : "") + ".";
     }
     var bits = [st.entered + " of " + st.n + " entered"];
+    if (st.waiting > 0) { bits.push(st.waiting + " handed in, waiting on a grade"); }
     if (st.dropsApplied > 0) {
       bits.push("lowest " + st.dropsApplied + " dropped (" +
         st.dropped.map(function (d) { return r1(d) + "%"; }).join(", ") + ")");
@@ -2679,15 +2781,20 @@ footer a{color:var(--ink2)}
     var open = res.open;
 
     if (res.gradedBaseW <= 0 && res.earnedEC <= 0) {
+      var w0 = Math.max(0, Math.min(res.waiting, open));
       host.innerHTML = '<p class="eyebrow">Runway</p>' +
         '<p style="font-size:13.5px;color:var(--ink2);margin:0">Nothing is graded yet. Enter a score above as ' +
         "each piece comes back and this fills in with where you stand and what the remaining work has to " +
         "carry.</p>" +
+        (w0 > 0 ? '<p class="verdict waitline" style="margin-top:8px"><b>' + r1(w0) +
+          "%</b> of the grade is handed in and waiting on a grade.</p>" : "") +
         (res.ecAvailable > 0 ? '<p style="font-size:13px;color:var(--ink3);margin:8px 0 0">This course offers ' +
           "up to " + r1(res.ecAvailable) + "% of extra credit on top of the graded total.</p>" : "");
       return;
     }
 
+    var waiting = Math.max(0, Math.min(res.waiting, open));
+    var rest = open - waiting;
     var cur = res.gradedBaseW > 0 ? (earnedTotal / res.gradedBaseW) * 100 : null;
     var needed = open > 0 ? ((c.target - (earnedTotal / scale) * 100) / (open / scale)) : null;
 
@@ -2702,14 +2809,18 @@ footer a{color:var(--ink2)}
       '<div class="e" style="flex:' + Math.max(0.001, res.earnedBase) + '"></div>' +
       (res.earnedEC > 0 ? '<div class="x" style="flex:' + res.earnedEC + '"></div>' : "") +
       '<div class="l" style="flex:' + Math.max(0.001, res.lost) + '"></div>' +
-      '<div class="o" style="flex:' + Math.max(0.001, open) + '"></div></div>';
+      (waiting > 0 ? '<div class="w" style="flex:' + waiting + '"></div>' : "") +
+      '<div class="o" style="flex:' + Math.max(0.001, rest) + '"></div></div>';
 
     html += '<div class="rlegend">' +
       '<span><i class="sw" style="background:var(--steady)"></i>' + r1(res.earnedBase) + " points earned</span>" +
       (res.earnedEC > 0 ? '<span><i class="sw" style="background:var(--busy)"></i>' + r1(res.earnedEC) +
         " extra credit</span>" : "") +
       '<span><i class="sw" style="background:var(--crunch)"></i>' + r1(res.lost) + " points lost</span>" +
-      '<span><i class="sw" style="background:var(--clear)"></i>' + r1(open) + " points still open</span></div>";
+      (waiting > 0 ? '<span><i class="sw" style="background:var(--accent-soft);border:1px solid var(--accent)"></i>' +
+        r1(waiting) + " points waiting on a grade</span>" : "") +
+      '<span><i class="sw" style="background:var(--clear)"></i>' + r1(waiting > 0 ? rest : open) +
+      (waiting > 0 ? " points not turned in yet" : " points still open") + "</span></div>";
 
     var vt;
     if (open <= 0) {
@@ -2730,6 +2841,30 @@ footer a{color:var(--ink2)}
         r1(open) + "% of the grade.";
     }
     html += '<div class="verdict">' + vt + "</div>";
+
+    /* Handed in work is still open on the arithmetic, since there is no score to count. What
+       it changes is how much of that open figure is still the student's to influence. */
+    if (waiting > 0 && open > 0) {
+      var wl;
+      if (rest <= 0.0001) {
+        wl = "<b>" + r1(waiting) + "%</b> of the grade is handed in and waiting on a grade, which is " +
+          "everything still open. There is nothing left to turn in.";
+      } else {
+        var restNeed = (c.target - ((earnedTotal + waiting * (c.target / 100)) / scale) * 100) / (rest / scale);
+        if (restNeed > 100) {
+          wl = "<b>" + r1(waiting) + "%</b> of the grade is handed in and waiting. Even if all of it comes " +
+            "back at " + r1(c.target) + "%, the remaining " + r1(rest) + "% would still have to average more " +
+            "than 100%.";
+        } else if (restNeed <= 0) {
+          wl = "<b>" + r1(waiting) + "%</b> of the grade is handed in and waiting. If it comes back at " +
+            r1(c.target) + "%, the target is locked in whatever happens to the remaining " + r1(rest) + "%.";
+        } else {
+          wl = "<b>" + r1(waiting) + "%</b> of the grade is handed in and waiting. If that work comes back at " +
+            r1(c.target) + "%, the remaining " + r1(rest) + "% needs to average <b>" + r1(restNeed) + "%</b>.";
+        }
+      }
+      html += '<div class="verdict waitline">' + wl + "</div>";
+    }
 
     if (res.ecOpen > 0 && needed !== null && needed > 0) {
       var withEC = ((c.target - ((earnedTotal + res.ecOpen) / scale) * 100) / (open / scale));
@@ -3237,6 +3372,7 @@ footer a{color:var(--ink2)}
       for (k = count; k < oldCount; k++) {
         var kk = c.id + "|" + s.sid + "|" + k;
         if (Object.prototype.hasOwnProperty.call(scores, kk)) { delete scores[kk]; pruned++; }
+        delete handed[kk];
       }
     }
 
@@ -3264,6 +3400,11 @@ footer a{color:var(--ink2)}
     for (k in scores) {
       if (Object.prototype.hasOwnProperty.call(scores, k) && (k === pref || k.indexOf(pref + "|") === 0)) {
         delete scores[k];
+      }
+    }
+    for (k in handed) {
+      if (Object.prototype.hasOwnProperty.call(handed, k) && (k === pref || k.indexOf(pref + "|") === 0)) {
+        delete handed[k];
       }
     }
     persist();
