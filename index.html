@@ -814,6 +814,23 @@ footer a{color:var(--ink2)}
   }
   function isFraction(raw) { return /\/|\bof\b/i.test(String(raw === undefined || raw === null ? "" : raw)); }
 
+  /* Extra credit is quoted in points on the final grade ("+3%"), so that is how people enter it.
+     On a bonus line a plain number at or under what the line is worth is read as bonus points,
+     meaning 3 on a +3% line is the full 3 points, not 3 percent of it. Anything larger, and any
+     fraction such as 8/10, is still a percent of the line, so 100 or 10/10 also mean all of it.
+     share is the points one entry can carry: the whole line, or one piece of a many-piece line. */
+  function isBonusPoints(s, raw, share) {
+    if (!s || !s.extraCredit || !(share > 0) || share >= 100) { return false; }
+    if (isFraction(raw)) { return false; }
+    var p = parseScore(raw);
+    return p !== null && p <= share + 1e-9;
+  }
+  function scoreFor(s, raw, share) {
+    var p = parseScore(raw);
+    if (p === null) { return null; }
+    return isBonusPoints(s, raw, share) ? (p / share) * 100 : p;
+  }
+
   /* ---------------- state ---------------- */
   var courses = [];
   var scores = {};
@@ -2237,7 +2254,7 @@ footer a{color:var(--ink2)}
 
     var vals = [], raw = [], k, p, waiting = 0;
     for (k = 0; k < n; k++) {
-      p = parseScore(scores[subKey(c, si, k)]);
+      p = scoreFor(s, scores[subKey(c, si, k)], s.weight / effTotal);
       if (p !== null) { vals.push(p); raw.push({ k: k, p: p }); }
       else if (n > 1 && handed[subKey(c, si, k)]) { waiting++; }
     }
@@ -2265,7 +2282,7 @@ footer a{color:var(--ink2)}
       };
     }
 
-    var cp = parseScore(scores[scoreKey(c, si)]);
+    var cp = scoreFor(s, scores[scoreKey(c, si)], s.weight);
     if (cp !== null) {
       return {
         mode: "category", pct: cp, fraction: 1, waiting: 0, waitingFraction: 0,
@@ -2368,7 +2385,10 @@ footer a{color:var(--ink2)}
       '<p class="eyebrow" style="margin-top:14px">Extra credit</p>' +
       '<p style="font-size:13.5px;color:var(--ink2);margin:0 0 6px">Lines the syllabus offers as a bonus are ' +
       "kept out of the denominator entirely. They add to what you have earned without adding to what you are " +
-      "being measured against, which is what makes a bonus a bonus. Unclaimed extra credit is never assumed, " +
+      "being measured against, which is what makes a bonus a bonus. Enter a bonus the way it is quoted, in " +
+      "points on the final grade, so <code>3</code> on a +3% line is the full 3 points. A fraction like " +
+      "<code>8/10</code>, or a percent above what the line is worth like <code>100</code>, is read as a share of " +
+      "the line instead. Unclaimed extra credit is never assumed, " +
       "but the runway tells you how much is still on the table and what taking all of it would do.</p>" +
       '<p class="eyebrow" style="margin-top:14px">How the runway is figured</p>' +
       '<p style="font-size:13.5px;color:var(--ink2);margin:0">Your current grade is what you have earned ' +
@@ -2519,7 +2539,9 @@ footer a{color:var(--ink2)}
       row.appendChild(stat);
       var cv = document.createElement("div");
       cv.className = "conv";
-      cv.textContent = st0.pct === null ? "" : r1(st0.pct) + "%";
+      cv.textContent = st0.pct === null ? "" : (s.extraCredit
+        ? "+" + r1(s.weight * st0.fraction * (st0.pct / 100)) + " pts"
+        : r1(st0.pct) + "%");
       row.appendChild(cv);
       list.appendChild(row);
       if (st0.mode === "items" || st0.waiting > 0) {
@@ -2535,7 +2557,7 @@ footer a{color:var(--ink2)}
     var inp = document.createElement("input");
     inp.type = "text";
     inp.inputMode = "text";
-    inp.placeholder = many ? "whole category" : "88 or 22/25";
+    inp.placeholder = many ? "whole category" : (s.extraCredit ? "pts, e.g. " + r1(s.weight) : "88 or 22/25");
     inp.value = Object.prototype.hasOwnProperty.call(scores, key) ? scores[key] : "";
     inp.setAttribute("aria-label",
       "Your score on " + s.item + ", as a percent or as points over the total");
@@ -2695,7 +2717,7 @@ footer a{color:var(--ink2)}
         }
       } else {
         inp.title = "";
-        inp.placeholder = many ? "whole category" : "88 or 22/25";
+        inp.placeholder = many ? "whole category" : (s.extraCredit ? "pts, e.g. " + r1(s.weight) : "88 or 22/25");
         var v = inp.value.trim();
         if (!v) {
           conv.className = "conv";
@@ -2706,6 +2728,11 @@ footer a{color:var(--ink2)}
           conv.title = "That entry could not be read. Use a percent like 88, or points like 22/25.";
           inp.className = "bad";
           inp.setAttribute("aria-invalid", "true");
+        } else if (isBonusPoints(s, v, s.weight)) {
+          conv.className = "conv calc";
+          conv.textContent = "+" + r1(parseScore(v)) + " pts";
+          conv.title = "Read as " + r1(parseScore(v)) + " of the " + r1(s.weight) +
+            " bonus points, which is " + r1(st.pct) + " percent of this line.";
         } else {
           conv.className = "conv" + (isFraction(v) ? " calc" : "");
           conv.textContent = r1(st.pct) + "%";

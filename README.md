@@ -81,6 +81,8 @@ Lines the syllabus offers as a bonus are marked `extraCredit` during extraction 
 
 Extra credit adds to what you have earned and never to what you are measured against. Concretely: it stays out of the weight total, out of the weight bar, out of the sum check that flags a syllabus adding up to 85 percent, and out of the graded denominator. It gets its own gold segment on the runway rail and its own line in the header. A course whose base is exactly 100 with 3 percent of bonus on top shows as `100% +3` on its chip and raises no warning, because nothing is wrong with it.
 
+A bonus is entered the way syllabi quote it, in points on the final grade. On a +3% line, `3` means the full three points and `2` means two of them; the box shows `+3 pts` so the reading is never in doubt. A fraction such as `8/10`, or a percent larger than the line is worth such as `100`, is read as a share of the line instead, so those still work too. Before this correction a bare `3` on a +3% line was read as three percent of the bonus, banking 0.09 points instead of 3 and leaving the needed average several points too high.
+
 Unclaimed extra credit is never assumed. Points you have not earned are not points, and a tool that quietly counted them would be telling you that you are safer than you are. What the runway does instead is tell you the bonus is there and what it would be worth: with a 93 percent target, 20 percent graded at 80, and 3 percent of bonus outstanding, it reports that you need a 96.3 percent average on the rest, and that claiming all the extra credit would bring that down to 92.5. Both numbers, and the decision stays yours.
 
 ## Grade math
